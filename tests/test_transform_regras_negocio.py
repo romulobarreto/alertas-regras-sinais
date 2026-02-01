@@ -50,3 +50,29 @@ def test_check_minimum_consumption_ok():
 
     # UC 4: DS (não é LG) = NULL
     assert pd.isna(result.loc[result['UC'] == 4, 'NO_MINIMO_4M'].iloc[0])
+
+def test_priority_rules_with_bate_caixa():
+    """Testa se o Bate Caixa impede a priorização (regra dos 4 meses)."""
+    from datetime import datetime, timedelta
+    today = datetime.now().strftime('%Y-%m-%d')
+    recent_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d') # 1 mês atrás
+    
+    data = {
+        'UC': [1, 2],
+        'STATUS_COMERCIAL': ['LG', 'LG'],
+        'NO_MINIMO_4M': ['SIM', 'SIM'],
+        'BATE_CAIXA': [pd.NA, recent_date], # UC 2 já teve bate caixa recente
+        'FISCALIZACAO': [pd.NA, pd.NA],
+        'FABRICANTE': ['OUTRO', 'OUTRO'],
+        'ANO': [2020, 2020]
+    }
+    df = pd.DataFrame(data)
+    
+    from etl.transform.regras_negocio import apply_priority_rules
+    result = apply_priority_rules(df)
+    
+    # UC 1 deve ser P3 (Mínimo da fase)
+    assert result.loc[result['UC'] == 1, 'PRIORIDADE'].iloc[0] == 'P3'
+    
+    # UC 2 não deve ter prioridade (Bate Caixa recente impede)
+    assert pd.isna(result.loc[result['UC'] == 2, 'PRIORIDADE'].iloc[0])

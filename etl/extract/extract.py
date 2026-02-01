@@ -1,38 +1,51 @@
 """Módulo para extração de dados de arquivos locais."""
+import logging
 from pathlib import Path
 
 import pandas as pd
 
 
-def load_all_files(input_path: str = 'input'):
-    """Lê todos os arquivos da pasta input e retorna um dicionário de DataFrames."""
-    path = Path(input_path)
+def load_all_files():
+    """Carrega todos os arquivos necessários para o pipeline."""
+    data_path = Path('input')
 
-    # Dicionário para guardar nossos DataFrames
-    data = {}
-
-    # Mapeamento de arquivos (Nome amigável: Nome do arquivo real)
-    files_to_load = {
+    files = {
         'cadastro_consumo': 'CADASTRO E CONSUMO POR UC.csv',
         'medidores': 'MEDIDORES.xlsx',
         'inspecoes': 'INSPECOES.xlsx',
         'ocorrencias': 'OCORRENCIA POR UC.csv',
         'apontamento': 'APONTAMENTO DE LEITURA.csv',
         'codigos_leitura': 'CODIGOS DA LEITURA.xls',
+        'sinergia': 'SINERGIA.csv',
+        'seccional': 'SECCIONAL.csv',
+        'localizacao': 'LOCALIZACAO E TIPO CLIENTE.csv',
     }
 
-    for key, filename in files_to_load.items():
-        file_path = path / filename
+    loaded_data = {}
 
-        if not file_path.exists():
-            raise FileNotFoundError(
-                f'Arquivo obrigatório não encontrado: {filename}'
-            )
+    for key, filename in files.items():
+        path = data_path / filename
+        if not path.exists():
+            logging.error(f'Arquivo não encontrado: {filename}')
+            raise FileNotFoundError(f'Arquivo essencial faltando: {filename}')
 
-        # Lógica de leitura baseada na extensão
-        if file_path.suffix == '.csv':
-            data[key] = pd.read_csv(file_path, sep=',', encoding='utf-8')
-        elif file_path.suffix in ['.xlsx', '.xls']:
-            data[key] = pd.read_excel(file_path)
+        logging.info(f'Carregando {filename}...')
 
-    return data
+        if path.suffix == '.csv':
+            # Tenta ler com ponto e vírgula, se falhar tenta vírgula
+            try:
+                loaded_data[key] = pd.read_csv(
+                    path, sep=';', encoding='latin-1'
+                )
+                if (
+                    len(loaded_data[key].columns) <= 1
+                ):   # Se leu errado, só terá 1 coluna
+                    raise ValueError
+            except:
+                loaded_data[key] = pd.read_csv(
+                    path, sep=',', encoding='latin-1'
+                )
+        elif path.suffix in ['.xlsx', '.xls']:
+            loaded_data[key] = pd.read_excel(path)
+
+    return loaded_data
