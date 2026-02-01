@@ -1,0 +1,47 @@
+site_name: "Recuperação de Energia - Alertas, Regras e Sinais"
+repo_url: "https://github.com/romulobarreto/alertas-regras-sinais"
+repo_name: "romulobarreto/alertas-regras-sinais"
+site_url: "https://github.com/romulobarreto/alertas-regras-sinais"
+site_author: "Rômulo Barreto"
+site_description: "Sistema Inteligente de Direcionamento de Inspeções - CEEE Equatorial"
+
+theme:
+  name: material
+  language: pt-BR
+  logo: assets/favicon.png
+  favicon: assets/favicon.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - O Projeto: sobre.md
+  - Matriz de Priorização: regras.md
+  - Guia de Execução: execucao.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - tables
