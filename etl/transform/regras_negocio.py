@@ -99,12 +99,16 @@ def calculate_yoy(df: pd.DataFrame) -> pd.DataFrame:
     if yoy_cols:
         # Calcula a média e garante que seja um float decimal (ex: -0.40 para -40%)
         out['MEDIA_YOY'] = out[yoy_cols].mean(axis=1, skipna=True)
-        
+
         # Se por algum motivo o número vier "inteiro" (ex: -40 em vez de -0.4)
         # fazemos uma trava de segurança:
-        mask_grande = out['MEDIA_YOY'].abs() > 2 # Ninguém cai 200% ou sobe 200% normalmente aqui
-        out.loc[mask_grande, 'MEDIA_YOY'] = out.loc[mask_grande, 'MEDIA_YOY'] / 100
-        
+        mask_grande = (
+            out['MEDIA_YOY'].abs() > 2
+        )   # Ninguém cai 200% ou sobe 200% normalmente aqui
+        out.loc[mask_grande, 'MEDIA_YOY'] = (
+            out.loc[mask_grande, 'MEDIA_YOY'] / 100
+        )
+
         out['MEDIA_YOY'] = out['MEDIA_YOY'].round(4)
     else:
         out['MEDIA_YOY'] = pd.NA
@@ -191,7 +195,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     media_yoy = pd.to_numeric(
         out.get('MEDIA_YOY', pd.Series(index=out.index)), errors='coerce'
     )
-    fabricante = out['FABRICANTE'].fillna("").astype(str).str.upper()
+    fabricante = out['FABRICANTE'].fillna('').astype(str).str.upper()
     ano_medidor = pd.to_numeric(out['ANO'], errors='coerce').fillna(0)
 
     # Apontamentos
@@ -214,11 +218,11 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     ]
     has_apontamento = (
         out['LEITURISTA']
-        .fillna("")
+        .fillna('')
         .astype(str)
         .str.upper()
         .isin(apontamentos_relevantes)
-    )   
+    )
 
     # --- APLICAÇÃO DAS REGRAS (HIERARQUIA) ---
 
@@ -300,7 +304,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
 
     # ========== P3 (SINAIS) ==========
     # P3.1: CONDOMINIOS ALTO DS (Lógica de agrupamento)
-    cond_col = out['CONDOMINIO'].fillna("").astype(str).str.upper()
+    cond_col = out['CONDOMINIO'].fillna('').astype(str).str.upper()
     if 'ENDERECO' in out.columns:
         # Agrupa por endereço (simplificado) para achar condomínios com >= 5 DS
         ds_por_endereco = out[status == 'DS'].groupby('ENDERECO').size()

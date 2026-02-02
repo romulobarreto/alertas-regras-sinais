@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 from etl.extract.extract import load_all_files
 from etl.load.load import save_to_csv
+from etl.transform.alvos import filter_out_pendentes
 from etl.transform.apontamento import (
     enrich_with_apontamento,
     treat_apontamento_codes,
@@ -54,6 +55,17 @@ def run_pipeline():
         # 2. TRANSFORMAÇÃO
         logging.info('Etapa 2: Iniciando transformações...')
         df = data['cadastro_consumo']
+
+        # Remove os alvos já abertos pelas outras áreas
+        logging.info(
+            'Removendo UCs com alvo pendente (CESTA BT - aba PENDENTE)...'
+        )
+        total_antes = len(df)
+        df = filter_out_pendentes(df, data['alvos'])
+        total_depois = len(df)
+        logging.info(
+            f'Alvos pendentes removidos: {total_antes - total_depois} (restaram {total_depois})'
+        )
 
         # Sequência de enriquecimento
         logging.info('Enriquecendo com dados de medidores...')
@@ -162,6 +174,7 @@ def run_pipeline():
         # 3. CARGA
         logging.info('Etapa 3: Exportando para CSV...')
         output_file = save_to_csv(df)
+        pbar.update(1)
 
         logging.info(
             f'Pipeline finalizado com sucesso! Arquivo gerado: {output_file}'

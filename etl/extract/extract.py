@@ -19,6 +19,7 @@ def load_all_files():
         'sinergia': 'SINERGIA.csv',
         'seccional': 'SECCIONAL.csv',
         'localizacao': 'LOCALIZACAO E TIPO CLIENTE.csv',
+        'alvos': 'CESTA BT.xlsx',
     }
 
     loaded_data = {}
@@ -46,6 +47,9 @@ def load_all_files():
                     path, sep=',', encoding='latin-1'
                 )
         elif path.suffix in ['.xlsx', '.xls']:
-            loaded_data[key] = pd.read_excel(path)
+            if key == 'alvos':
+                loaded_data[key] = pd.read_excel(path, sheet_name='PENDENTE')
+            else:
+                loaded_data[key] = pd.read_excel(path)
 
     return loaded_data

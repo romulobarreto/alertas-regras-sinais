@@ -34,7 +34,7 @@ def enrich_with_new_bases(df: pd.DataFrame, data: dict) -> pd.DataFrame:
 
     # 3. Localização e Tipo Cliente
     loc = data['localizacao'].copy()
-    
+
     # Garante que UC seja tratada como número para o merge
     loc['uc'] = pd.to_numeric(loc['uc'], errors='coerce')
     out['UC'] = pd.to_numeric(out['UC'], errors='coerce')
