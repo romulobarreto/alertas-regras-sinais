@@ -11,6 +11,11 @@ Este projeto nasceu da necessidade de transformar a produtividade das equipes de
 ### 🎯 Objetivo Principal
 Otimizar a taxa de acerto das inspeções, direcionando as equipes para os alvos com maior probabilidade de recuperação de energia ou correção de defeitos técnicos.
 
+### ⏱️ Ganho de produtividade
+
+Este projeto substitui uma rotina manual de **~5 horas** por uma execução automatizada de **~40 segundos** (tempo médio da ETL).  
+Isso libera a equipe para atuar no campo com base em evidências, em vez de gastar tempo montando e validando recortes.
+
 ### 📊 O que entregamos?
 - **Priorização Automática:** Classificação em P1, P2 e P3.
 - **Filtro de Esforço:** Não enviamos equipes onde já houve fiscalização ou bate-caixa recente (4-6 meses).

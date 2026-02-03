@@ -228,8 +228,28 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
 
     # ========== P1 (ALERTAS) ==========
     # P1.1: DS + NRT - (Fisc/Bate Caixa após Move-out)
-    esforco_apos_ds = (fisc_date > move_out) | (bate_caixa > move_out)
-    cond_p1_1 = (status == 'DS') & has_nrt & ~esforco_apos_ds
+    # Lógica: Se está DS, tem NRT DEPOIS do move_out, e NÃO teve esforço DEPOIS do desligamento
+    tem_move_out = move_out.notna()
+
+    # Converte NOTA DE RECLAMACAO para datetime se ainda não estiver
+    nota_reclamacao = pd.to_datetime(
+        out.get('NOTA DE RECLAMACAO', pd.Series(index=out.index)),
+        errors='coerce',
+    )
+
+    # A reclamação tem que ser >= move_out (depois ou no mesmo dia do desligamento)
+    nrt_apos_ds = nota_reclamacao.notna() & (nota_reclamacao >= move_out)
+
+    esforco_apos_ds = (fisc_date.notna() & (fisc_date > move_out)) | (
+        bate_caixa.notna() & (bate_caixa > move_out)
+    )
+
+    cond_p1_1 = (
+        (status == 'DS')
+        & tem_move_out
+        & nrt_apos_ds  # Garante que o move_out existe
+        & ~esforco_apos_ds  # Reclamação DEPOIS do desligamento
+    )
     out.loc[cond_p1_1, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P1',
         'DESLIGADO COM RECLAMAÇÃO',

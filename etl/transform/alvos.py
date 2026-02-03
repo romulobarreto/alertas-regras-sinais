@@ -1,4 +1,8 @@
-"""Módulo para remover os alvos já abertos pelas outras áreas de um possível apontamento repetido na base do alertas-regras-sinais."""
+"""
+Módulo para remover os alvos já abertos pelas outras áreas.
+
+Filtra UCs que já possuem apontamento repetido na base do alertas-regras-sinais.
+"""
 
 import pandas as pd
 
@@ -8,6 +12,7 @@ def filter_out_pendentes(
 ) -> pd.DataFrame:
     """
     Remove UCs que já possuem alvo pendente na CESTA BT (aba PENDENTE).
+
     A coluna AREA pode existir só como apoio, mas não precisa ir pro output.
     """
     out = base_df.copy()

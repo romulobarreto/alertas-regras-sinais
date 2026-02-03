@@ -31,28 +31,33 @@ Este projeto nasceu para **trocar aleatoriedade por evidência**.
 
 | Prioridade | Regra | Resumo da lógica |
 |---|---|---|
-| **P1** 🚨 | Desligado com Reclamação | `DS` + tem reclamação + **sem** esforço após move-out |
-| **P1** 🚨 | Mínimo da Fase com Reclamação | `LG` + mínimo (4m) + reclamação + **sem** esforço (4m) |
-| **P2** ⚠️ | Reincidente com Queda | `LG` + fraude histórica + YoY ≤ -40% + **sem** esforço (6m) |
-| **P2** ⚠️ | Mínimo com Apontamento Suspeito | `LG` + mínimo + apontamento relevante + **sem** esforço (4m) |
-| **P2** ⚠️ | Dowertech 2014 no Mínimo | fabricante `DOWERTECH` + ano 2014 + `LG` + mínimo + **sem** esforço (4m) |
-| **P2** ⚠️ | Medidor Antigo no Mínimo | ano ≤ 2000 + `LG` + mínimo + **sem** esforço (4m) |
+| **P1** 🚨 | Desligado com Reclamação | `DS` + tem reclamação (após move-out)+ **sem** visita após move-out |
+| **P1** 🚨 | Mínimo da Fase com Reclamação | `LG` + mínimo (4m) + reclamação + **sem** visita (4m) |
+| **P2** ⚠️ | Reincidente com Queda | `LG` + fraude histórica + YoY ≤ -40% + **sem** visita (6m) |
+| **P2** ⚠️ | Mínimo com Apontamento Suspeito | `LG` + mínimo + apontamento relevante + **sem** visita (4m) |
+| **P2** ⚠️ | Dowertech 2014 no Mínimo | fabricante `DOWERTECH` + ano 2014 + `LG` + mínimo + **sem** visita (4m) |
+| **P2** ⚠️ | Medidor Antigo no Mínimo | ano ≤ 2000 + `LG` + mínimo + **sem** visita (4m) |
 | **P3** 🔎 | Condomínio com Alto DS | condomínio com **≥ 5 UCs** em `DS` no mesmo endereço |
-| **P3** 🔎 | Desligado Recente + Fraude | `DS` (6m) + fraude histórica + **sem** esforço após move-out |
-| **P3** 🔎 | Consumo no Mínimo | `LG` + mínimo (4m) + **sem** esforço (4m) |
-| **P3** 🔎 | Queda Acentuada | `LG` + YoY ≤ -40% + **sem** esforço (6m) |
+| **P3** 🔎 | Desligado Recente + Fraude | `DS` (6m) + fraude histórica + **sem** visita após move-out |
+| **P3** 🔎 | Consumo no Mínimo | `LG` + mínimo (4m) + **sem** visita (4m) |
+| **P3** 🔎 | Queda Acentuada | `LG` + YoY ≤ -40% + **sem** visita (6m) |
+
+`Desconsiderar alvos já abertos`
+
+**Alvos que já estão abertos por outras áreas** são removidos do conjunto de priorização, evitando retrabalho e duplicidade de atuação.
 
 ## 🗂️ Dados de entrada (input)
 
 O pipeline espera estes arquivos dentro da pasta `input/` (nomes exatos):
 
 - `CADASTRO E CONSUMO POR UC.csv`
+- `CESTA BT.xlsx`
 - `MEDIDORES.xlsx`
 - `INSPECOES.xlsx`
 - `OCORRENCIA POR UC.csv`
 - `APONTAMENTO DE LEITURA.csv`
 - `CODIGOS DA LEITURA.xls`
-- `SINERGIA.csv` *(Bate-caixa)*
+- `SINERGIA.csv`
 - `SECCIONAL.csv`
 - `LOCALIZACAO E TIPO CLIENTE.csv`
 
@@ -60,13 +65,13 @@ O pipeline espera estes arquivos dentro da pasta `input/` (nomes exatos):
 
 Ao final, é gerado um CSV pronto para uso no Excel/Power BI:
 
-- `output/RELATORIO_PRIORIZACAO_FINAL.csv`
+- `output/CADASTRO_E_CONSUMO_POR_UC_FINAL.csv`
 
 Ele já sai com:
 - `PRIORIDADE` e `MOTIVO_PRIORIDADE`
 - `MEDIA_YOY` (decimal, pronto pra formatar como % no Excel)
 - `LATITUDE` e `LONGITUDE`
-- `BATE_CAIXA` e `FISCALIZACAO` (quando existirem)
+- `BATE_CAIXA`, `FISCALIZACAO` e `NOTA DE RECLAMAÇÃO` (quando existirem).
 
 ## 🛠️ Como rodar (dev)
 

@@ -39,6 +39,8 @@ nav:
   - O Projeto: sobre.md
   - Matriz de Priorização: regras.md
   - Guia de Execução: execucao.md
+  - Visualização: painel.md
+  - Atualizações: atualizacao.md
 
 markdown_extensions:
   - admonition

@@ -55,14 +55,17 @@ def test_check_minimum_consumption_ok():
 def test_priority_rules_with_bate_caixa():
     """Testa se o Bate Caixa impede a priorização (regra dos 4 meses)."""
     from datetime import datetime, timedelta
+
     today = datetime.now().strftime('%Y-%m-%d')
-    recent_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d') # 1 mês atrás
+    recent_date = (datetime.now() - timedelta(days=30)).strftime(
+        '%Y-%m-%d'
+    )   # 1 mês atrás
 
     data = {
         'UC': [1, 2],
         'STATUS_COMERCIAL': ['LG', 'LG'],
         'NO_MINIMO_4M': ['SIM', 'SIM'],
-        'BATE_CAIXA': [pd.NA, recent_date], # UC 2 já teve bate caixa recente
+        'BATE_CAIXA': [pd.NA, recent_date],  # UC 2 já teve bate caixa recente
         'FISCALIZACAO': [pd.NA, pd.NA],
         'FABRICANTE': ['OUTRO', 'OUTRO'],
         'ANO': [2020, 2020],
@@ -73,11 +76,12 @@ def test_priority_rules_with_bate_caixa():
         'COD': [pd.NA, pd.NA],
         'MEDIA_YOY': [0, 0],
         'CONDOMINIO': ['NAO', 'NAO'],
-        'ENDERECO': ['RUA A', 'RUA B']
+        'ENDERECO': ['RUA A', 'RUA B'],
     }
     df = pd.DataFrame(data)
 
     from etl.transform.regras_negocio import apply_priority_rules
+
     result = apply_priority_rules(df)
 
     # UC 1: sem esforço recente → deve ser P3 (mínimo da fase)

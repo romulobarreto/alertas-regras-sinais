@@ -5,28 +5,42 @@ import pandas as pd
 def enrich_with_occurrences(
     base_df: pd.DataFrame, occurrences_df: pd.DataFrame
 ) -> pd.DataFrame:
-    """Enriquecer a base com data de ocorrência."""
-    occurrences = occurrences_df.copy()
+    """Enriquecer a base com data de ocorrência e flag de NRT."""
+    # 1. Limpeza da base de ocorrências
+    occ = occurrences_df.copy()
 
-    occurrences = occurrences.rename(
-        columns={'CR_NUMERO': 'UC', 'OCO_DATA_NR': 'NOTA_DE_RECLAMACAO'}
+    # Renomeia se os nomes originais forem diferentes
+    occ = occ.rename(
+        columns={'CR_NUMERO': 'UC', 'OCO_DATA_NR': 'NOTA DE RECLAMACAO'}
     )
 
-    # --- LÓGICA PROCV: Pegar apenas a primeira ocorrência ---
-    occurrences = occurrences.drop_duplicates(subset=['UC'], keep='first')
-
-    occurrences['UC'] = pd.to_numeric(
-        occurrences['UC'], errors='coerce'
-    ).astype('Int64')
-    base_df_copy = base_df.copy()
-    base_df_copy['UC'] = pd.to_numeric(
-        base_df_copy['UC'], errors='coerce'
-    ).astype('Int64')
-
-    df = base_df_copy.merge(
-        occurrences[['UC', 'NOTA_DE_RECLAMACAO']],
-        on='UC',
-        how='left',
-        validate='m:1',
+    # Garante que UC seja string limpa (sem .0 e sem espaços)
+    occ['UC'] = (
+        occ['UC'].astype(str).str.replace(r'\.0$', '', regex=True).str.strip()
     )
+
+    # Remove duplicadas (PROCV: pega a primeira ocorrência)
+    occ = occ.drop_duplicates(subset=['UC'], keep='first')
+
+    # 2. Limpeza da base principal
+    df = base_df.copy()
+    df['UC'] = (
+        df['UC'].astype(str).str.replace(r'\.0$', '', regex=True).str.strip()
+    )
+
+    # 3. O MERGE (O PROCV propriamente dito)
+    df = df.merge(occ[['UC', 'NOTA DE RECLAMACAO']], on='UC', how='left')
+
+    # 4. Tratamento da Data e Flag
+    # O pandas é inteligente: se vier 2026-01-30 ou 30/01/2026, o dayfirst=True ajuda
+    df['NOTA DE RECLAMACAO'] = pd.to_datetime(
+        df['NOTA DE RECLAMACAO'], errors='coerce', dayfirst=True
+    )
+
+    # Cria a flag HAS_NRT (Se tem data, tem reclamação)
+    df['HAS_NRT'] = df['NOTA DE RECLAMACAO'].notna()
+
+    # Volta a UC para numérico no final para manter o padrão da base
+    df['UC'] = pd.to_numeric(df['UC'], errors='coerce').astype('Int64')
+
     return df

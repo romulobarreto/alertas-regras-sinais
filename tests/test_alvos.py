@@ -9,17 +9,21 @@ from etl.transform.alvos import filter_out_pendentes
 def test_filter_out_pendentes_remove_ucs_corretas():
     """Testa se UCs com alvo pendente são removidas corretamente."""
     # Base de dados principal
-    base_df = pd.DataFrame({
-        'UC': [5747015, 5828619, 5831946, 9999999, 8888888],
-        'STATUS_COMERCIAL': ['LG', 'LG', 'LG', 'LG', 'DS'],
-        'MUNICIPIO': ['PELOTAS', 'PELOTAS', 'PELOTAS', 'PELOTAS', 'BAGE']
-    })
+    base_df = pd.DataFrame(
+        {
+            'UC': [5747015, 5828619, 5831946, 9999999, 8888888],
+            'STATUS_COMERCIAL': ['LG', 'LG', 'LG', 'LG', 'DS'],
+            'MUNICIPIO': ['PELOTAS', 'PELOTAS', 'PELOTAS', 'PELOTAS', 'BAGE'],
+        }
+    )
 
     # Alvos pendentes (CESTA BT - aba PENDENTES)
-    alvos_df = pd.DataFrame({
-        'UC': [5747015, 5831946],  # Essas duas têm alvo pendente
-        'AREA': ['FISCALIZACAO - LEITURA', 'FISCALIZACAO - LEITURA']
-    })
+    alvos_df = pd.DataFrame(
+        {
+            'UC': [5747015, 5831946],  # Essas duas têm alvo pendente
+            'AREA': ['FISCALIZACAO - LEITURA', 'FISCALIZACAO - LEITURA'],
+        }
+    )
 
     resultado = filter_out_pendentes(base_df, alvos_df)
 
@@ -34,15 +38,14 @@ def test_filter_out_pendentes_remove_ucs_corretas():
 
 def test_filter_out_pendentes_sem_alvos():
     """Testa comportamento quando não há alvos pendentes."""
-    base_df = pd.DataFrame({
-        'UC': [1111111, 2222222, 3333333],
-        'STATUS_COMERCIAL': ['LG', 'LG', 'DS']
-    })
+    base_df = pd.DataFrame(
+        {
+            'UC': [1111111, 2222222, 3333333],
+            'STATUS_COMERCIAL': ['LG', 'LG', 'DS'],
+        }
+    )
 
-    alvos_df = pd.DataFrame({
-        'UC': [],
-        'AREA': []
-    })
+    alvos_df = pd.DataFrame({'UC': [], 'AREA': []})
 
     resultado = filter_out_pendentes(base_df, alvos_df)
 
@@ -52,15 +55,16 @@ def test_filter_out_pendentes_sem_alvos():
 
 def test_filter_out_pendentes_todos_pendentes():
     """Testa quando todas as UCs têm alvo pendente."""
-    base_df = pd.DataFrame({
-        'UC': [5747015, 5828619],
-        'STATUS_COMERCIAL': ['LG', 'LG']
-    })
+    base_df = pd.DataFrame(
+        {'UC': [5747015, 5828619], 'STATUS_COMERCIAL': ['LG', 'LG']}
+    )
 
-    alvos_df = pd.DataFrame({
-        'UC': [5747015, 5828619],
-        'AREA': ['FISCALIZACAO - LEITURA', 'FISCALIZACAO - DS']
-    })
+    alvos_df = pd.DataFrame(
+        {
+            'UC': [5747015, 5828619],
+            'AREA': ['FISCALIZACAO - LEITURA', 'FISCALIZACAO - DS'],
+        }
+    )
 
     resultado = filter_out_pendentes(base_df, alvos_df)
 
@@ -70,15 +74,19 @@ def test_filter_out_pendentes_todos_pendentes():
 
 def test_filter_out_pendentes_uc_com_valores_nulos():
     """Testa tratamento de UCs nulas ou inválidas."""
-    base_df = pd.DataFrame({
-        'UC': [5747015, None, 'INVALIDO', 5828619],
-        'STATUS_COMERCIAL': ['LG', 'LG', 'LG', 'LG']
-    })
+    base_df = pd.DataFrame(
+        {
+            'UC': [5747015, None, 'INVALIDO', 5828619],
+            'STATUS_COMERCIAL': ['LG', 'LG', 'LG', 'LG'],
+        }
+    )
 
-    alvos_df = pd.DataFrame({
-        'UC': [5747015, None],
-        'AREA': ['FISCALIZACAO - LEITURA', 'FISCALIZACAO - DS']
-    })
+    alvos_df = pd.DataFrame(
+        {
+            'UC': [5747015, None],
+            'AREA': ['FISCALIZACAO - LEITURA', 'FISCALIZACAO - DS'],
+        }
+    )
 
     resultado = filter_out_pendentes(base_df, alvos_df)
 
@@ -91,36 +99,46 @@ def test_filter_out_pendentes_uc_com_valores_nulos():
 
 def test_filter_out_pendentes_coluna_uc_ausente():
     """Testa erro quando a aba PENDENTES não tem coluna UC."""
-    base_df = pd.DataFrame({
-        'UC': [5747015, 5828619],
-        'STATUS_COMERCIAL': ['LG', 'LG']
-    })
+    base_df = pd.DataFrame(
+        {'UC': [5747015, 5828619], 'STATUS_COMERCIAL': ['LG', 'LG']}
+    )
 
-    alvos_df = pd.DataFrame({
-        'INSTALACAO': [5747015, 5828619],  # Coluna errada
-        'AREA': ['FISCALIZACAO - LEITURA', 'FISCALIZACAO - DS']
-    })
+    alvos_df = pd.DataFrame(
+        {
+            'INSTALACAO': [5747015, 5828619],  # Coluna errada
+            'AREA': ['FISCALIZACAO - LEITURA', 'FISCALIZACAO - DS'],
+        }
+    )
 
-    with pytest.raises(KeyError, match="A aba PENDENTES da CESTA BT.xlsx precisa ter a coluna 'UC'"):
+    with pytest.raises(
+        KeyError,
+        match="A aba PENDENTES da CESTA BT.xlsx precisa ter a coluna 'UC'",
+    ):
         filter_out_pendentes(base_df, alvos_df)
 
 
 def test_filter_out_pendentes_preserva_outras_colunas():
     """Testa se outras colunas são preservadas após o filtro."""
-    base_df = pd.DataFrame({
-        'UC': [5747015, 5828619, 5831946],
-        'STATUS_COMERCIAL': ['LG', 'LG', 'LG'],
-        'MUNICIPIO': ['PELOTAS', 'PELOTAS', 'PELOTAS'],
-        'PRIORIDADE': ['P1', 'P2', 'P3']
-    })
+    base_df = pd.DataFrame(
+        {
+            'UC': [5747015, 5828619, 5831946],
+            'STATUS_COMERCIAL': ['LG', 'LG', 'LG'],
+            'MUNICIPIO': ['PELOTAS', 'PELOTAS', 'PELOTAS'],
+            'PRIORIDADE': ['P1', 'P2', 'P3'],
+        }
+    )
 
-    alvos_df = pd.DataFrame({
-        'UC': [5747015],
-        'AREA': ['FISCALIZACAO - LEITURA']
-    })
+    alvos_df = pd.DataFrame(
+        {'UC': [5747015], 'AREA': ['FISCALIZACAO - LEITURA']}
+    )
 
     resultado = filter_out_pendentes(base_df, alvos_df)
 
     # Verifica se as colunas foram preservadas
-    assert list(resultado.columns) == ['UC', 'STATUS_COMERCIAL', 'MUNICIPIO', 'PRIORIDADE']
+    assert list(resultado.columns) == [
+        'UC',
+        'STATUS_COMERCIAL',
+        'MUNICIPIO',
+        'PRIORIDADE',
+    ]
     assert len(resultado) == 2
