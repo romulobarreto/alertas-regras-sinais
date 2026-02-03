@@ -8,4 +8,4 @@
 - Tabela detalhada com exportação do recorte filtrado
 
 🌐 Acesso ao painel:  
-https://painel-priorizacao-b7zegw9cretfxvfhs25cdf.streamlit.app/
+[Painel de Priorização (Streamlit)](https://painel-priorizacao-b7zegw9cretfxvfhs25cdf.streamlit.app/)
