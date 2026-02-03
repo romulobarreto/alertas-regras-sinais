@@ -2,18 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://github.com/romulobarreto/alertas-regras-sinais/</loc>
-         <lastmod>2026-02-01</lastmod>
+         <lastmod>2026-02-03</lastmod>
+    </url>
+    <url>
+         <loc>https://github.com/romulobarreto/alertas-regras-sinais/atualizacao/</loc>
+         <lastmod>2026-02-03</lastmod>
     </url>
     <url>
          <loc>https://github.com/romulobarreto/alertas-regras-sinais/execucao/</loc>
-         <lastmod>2026-02-01</lastmod>
+         <lastmod>2026-02-03</lastmod>
+    </url>
+    <url>
+         <loc>https://github.com/romulobarreto/alertas-regras-sinais/painel/</loc>
+         <lastmod>2026-02-03</lastmod>
     </url>
     <url>
          <loc>https://github.com/romulobarreto/alertas-regras-sinais/regras/</loc>
-         <lastmod>2026-02-01</lastmod>
+         <lastmod>2026-02-03</lastmod>
     </url>
     <url>
          <loc>https://github.com/romulobarreto/alertas-regras-sinais/sobre/</loc>
-         <lastmod>2026-02-01</lastmod>
+         <lastmod>2026-02-03</lastmod>
     </url>
 </urlset>
