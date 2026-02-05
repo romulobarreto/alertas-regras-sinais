@@ -5,7 +5,7 @@ Saiba tudo sobre as atualizações do projeto por período.
 Para **melhor visualização** dos alvos encontrados, foi feito o **painel de prioridades** com streamlit.
 
 🌐 Acesse: 
-[Painel de Priorização (Streamlit)](https://painel-priorizacao-b7zegw9cretfxvfhs25cdf.streamlit.app/)
+[Painel de Priorização (Streamlit)](https://painel-priorizacao.streamlit.app/)
 
 ### ✅ Ajuste 2 (02/02/26) — Regra do P1 DS com corte por MOVE_OUT
 Para o alvo **P1 DS**, a **nota de reclamação** só é considerada quando ocorrer em data **maior ou igual** ao período de **MOVE_OUT**.  

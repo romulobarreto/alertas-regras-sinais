@@ -295,10 +295,10 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'MÍNIMO COM APONTAMENTO SUSPEITO',
     ]
 
-    # P2.3: DOWERTECH + 2014 + LG + MINIMO - (Fisc/Bate Caixa 4 meses)
+    # P2.3: DOWERTECH + 2013 + LG + MINIMO - (Fisc/Bate Caixa 4 meses)
     cond_p2_3 = (
         fabricante.str.contains('DOWERTECH', na=False)
-        & (ano_medidor == 2014)
+        & (ano_medidor == 2013)
         & (status == 'LG')
         & no_minimo
         & ~tem_esforco_recente(4)
@@ -306,12 +306,13 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p2_3, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P2',
-        'MEDIDOR DOWERTECH 2014 NO MÍNIMO',
+        'MEDIDOR DOWERTECH 2013 NO MÍNIMO',
     ]
 
-    # P2.4: ANO <= 2000 + LG + MINIMO - (Fisc/Bate Caixa 4 meses)
+    # P2.4: DOWERTECH + 2014 + LG + MINIMO - (Fisc/Bate Caixa 4 meses)
     cond_p2_4 = (
-        (ano_medidor <= 2000)
+        fabricante.str.contains('DOWERTECH', na=False)
+        & (ano_medidor == 2014)
         & (status == 'LG')
         & no_minimo
         & ~tem_esforco_recente(4)
@@ -319,10 +320,23 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p2_4, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P2',
-        'MEDIDOR ANTIGO NO MÍNIMO',
+        'MEDIDOR DOWERTECH 2014 NO MÍNIMO',
     ]
 
     # ========== P3 (SINAIS) ==========
+    # P3.0: ANO <= 2000 + LG + MINIMO - (Fisc/Bate Caixa 4 meses)
+    cond_p3_4 = (
+        (ano_medidor <= 2000)
+        & (status == 'LG')
+        & no_minimo
+        & ~tem_esforco_recente(4)
+        & out['PRIORIDADE'].isna()
+    )
+    out.loc[cond_p3_4, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
+        'P3',
+        'MEDIDOR ANTIGO NO MÍNIMO',
+    ]
+    
     # P3.1: CONDOMINIOS ALTO DS (Lógica de agrupamento)
     cond_col = out['CONDOMINIO'].fillna('').astype(str).str.upper()
     if 'ENDERECO' in out.columns:
