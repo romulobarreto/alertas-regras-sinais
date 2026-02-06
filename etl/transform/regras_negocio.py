@@ -252,7 +252,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p1_1, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P1',
-        'DESLIGADO COM RECLAMAÇÃO',
+        'P1-DESLIGADO COM RECLAMAÇÃO',
     ]
 
     # P1.2: LG + MINIMO + NRT - (Fisc/Bate Caixa 4 meses)
@@ -265,7 +265,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p1_2, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P1',
-        'MÍNIMO DA FASE COM RECLAMAÇÃO',
+        'P1-MÍNIMO DA FASE COM RECLAMAÇÃO',
     ]
 
     # ========== P2 (REGRAS) ==========
@@ -279,7 +279,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p2_1, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P2',
-        'REINCIDENTE COM QUEDA DE CONSUMO',
+        'P2-REINCIDENTE COM QUEDA DE CONSUMO',
     ]
 
     # P2.2: LG + MINIMO + APONTAMENTO - (Fisc/Bate Caixa 4 meses)
@@ -292,7 +292,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p2_2, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P2',
-        'MÍNIMO COM APONTAMENTO SUSPEITO',
+        'P2-MÍNIMO COM APONTAMENTO SUSPEITO',
     ]
 
     # P2.3: DOWERTECH + 2013 + LG + MINIMO - (Fisc/Bate Caixa 4 meses)
@@ -306,7 +306,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p2_3, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P2',
-        'MEDIDOR DOWERTECH 2013 NO MÍNIMO',
+        'P2-MEDIDOR DOWERTECH 2013 NO MÍNIMO',
     ]
 
     # P2.4: DOWERTECH + 2014 + LG + MINIMO - (Fisc/Bate Caixa 4 meses)
@@ -320,7 +320,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p2_4, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P2',
-        'MEDIDOR DOWERTECH 2014 NO MÍNIMO',
+        'P2-MEDIDOR DOWERTECH 2014 NO MÍNIMO',
     ]
 
     # ========== P3 (SINAIS) ==========
@@ -334,9 +334,9 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p3_4, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P3',
-        'MEDIDOR ANTIGO NO MÍNIMO',
+        'P3-MEDIDOR ANTIGO NO MÍNIMO',
     ]
-    
+
     # P3.1: CONDOMINIOS ALTO DS (Lógica de agrupamento)
     cond_col = out['CONDOMINIO'].fillna('').astype(str).str.upper()
     if 'ENDERECO' in out.columns:
@@ -350,7 +350,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         )
         out.loc[cond_p3_1, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
             'P3',
-            'CONDOMÍNIO COM ALTO ÍNDICE DE DS',
+            'P3-CONDOMÍNIO COM ALTO ÍNDICE DE DS',
         ]
 
     # P3.2: DS RECENTE (6m) + FRAUDE - (Fisc/Bate Caixa após Move-out)
@@ -364,7 +364,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p3_2, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P3',
-        'DESLIGADO RECENTE COM HISTÓRICO DE FRAUDE',
+        'P3-DESLIGADO RECENTE COM HISTÓRICO DE FRAUDE',
     ]
 
     # P3.3: LG + MINIMO - (Fisc/Bate Caixa 4 meses)
@@ -376,7 +376,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p3_3, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P3',
-        'CONSUMO NO MÍNIMO DA FASE',
+        'P3-CONSUMO NO MÍNIMO DA FASE',
     ]
 
     # P3.4: LG + QUEDA 40% - (Fisc/Bate Caixa 6 meses)
@@ -388,7 +388,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
     out.loc[cond_p3_4, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P3',
-        'QUEDA ACENTUADA DE CONSUMO',
+        'P3-QUEDA ACENTUADA DE CONSUMO',
     ]
 
     return out

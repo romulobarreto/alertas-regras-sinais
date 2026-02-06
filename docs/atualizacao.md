@@ -1,11 +1,29 @@
 ### 🧾 Atualizações recentes 
 Saiba tudo sobre as atualizações do projeto por período.
 
+### ✅ Ajuste 9 (06/02/26) — Ajuste de colunas no relatório final
+Para que no painel de prioridades os filtro sejam **mais rápidos** removemos as colunas de **consumo e year over year**, tornando a base mais **leve**.
+
+### ✅ Ajuste 8 (06/02/26) — Ajuste de nome dos Motivo Prioridade
+Para que no painel de prioridades o filtro **Motivo Prioridade** contenha o tipo de prioridade o nome de cada motivo recebeu **P1 - P2 - P3** no prefixo.
+
+### ✅ Ajuste 7 (06/02/26) — Ajuste de filtro do Motivo Prioridade
+No painel de prioridades o filtro **Motivo Prioridade** não estava aceitando **nenhum filtro**.
+
+### ✅ Ajuste 6 (05/02/26) — Regra do P2 de medidor dowertech 2013 no mínimo da fase
+Para um P2 mais **assertivo** adicionamos a regra do **medidor dowertech 2014 no mínimo da fase** para  **sinal P2**.
+
+### ✅ Ajuste 5 (05/02/26) — Regra do P2 de medidor antigo no mínimo da fase
+Para um P2 mais **assertivo** passamos o P2 de **medidor antigo no mínimo da fase** para  **sinal P3**.
+
+### ✅ Ajuste 4 (04/02/26) — Ajuste do link do painel de priorização
+Para um **link** mais **profissional** a url do site foi alterada. 
+
 ### ✅ Ajuste 3 (02/02/26) — Deploy do streamlit para visualização dos dados
 Para **melhor visualização** dos alvos encontrados, foi feito o **painel de prioridades** com streamlit.
 
 🌐 Acesse: 
-[Painel de Priorização (Streamlit)](https://painel-priorizacao.streamlit.app/)
+[Painel de Priorização (Streamlit)](https://painel-priorizacao.streamlit.app/) 
 
 ### ✅ Ajuste 2 (02/02/26) — Regra do P1 DS com corte por MOVE_OUT
 Para o alvo **P1 DS**, a **nota de reclamação** só é considerada quando ocorrer em data **maior ou igual** ao período de **MOVE_OUT**.  

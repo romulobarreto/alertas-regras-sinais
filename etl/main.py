@@ -1,8 +1,10 @@
 """Ponto de entrada principal para o pipeline de ETL."""
+
 import logging
 import re
 from datetime import datetime
 from pathlib import Path
+from typing import Dict
 
 from tqdm import tqdm
 
@@ -24,22 +26,40 @@ from etl.transform.regras_negocio import (
     flag_minimum_by_phase,
 )
 
-# Configuração de Log
-log_path = Path('logs')
-log_path.mkdir(exist_ok=True)
-log_file = log_path / f"{datetime.now().strftime('%Y-%m-%d')}.log"
+# -----------------------------------------------------------------------------
+# Configuração de logs
+# -----------------------------------------------------------------------------
+LOGS_DIR = Path('logs')
+LOGS_DIR.mkdir(exist_ok=True)
+LOG_FILE = LOGS_DIR / f"{datetime.now().strftime('%Y-%m-%d')}.log"
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-# Regex para identificar colunas de consumo (MM/YYYY)
+# -----------------------------------------------------------------------------
+# Regex e toggles
+# -----------------------------------------------------------------------------
+# Regex para identificar colunas de consumo (MM/YYYY), com ou sem aspas
 _MONTH_RE = re.compile(r"^'?(\d{2})/(\d{4})'?$")
 
+# Toggle: remover colunas de consumo mensal do CSV final
+# - True: remove (arquivo final sem as colunas de consumo)
+# - False: mantém as colunas de consumo no arquivo final
+REMOVE_CONSUMO = True
 
-def run_pipeline():
+# Toggle: remover colunas técnicas de YoY do CSV final
+# - True: remove (arquivo final sem as colunas yoy_)
+# - False: mantém as colunas yoy_ no arquivo final
+REMOVE_YOY = True
+
+
+# -----------------------------------------------------------------------------
+# Pipeline
+# -----------------------------------------------------------------------------
+def run_pipeline() -> None:
     """Executa todo o fluxo de ETL com logs e barra de progresso."""
     logging.info('Iniciando Pipeline de ETL...')
 
@@ -49,7 +69,7 @@ def run_pipeline():
     try:
         # 1. EXTRAÇÃO
         logging.info('Etapa 1: Extraindo arquivos...')
-        data = load_all_files()
+        data: Dict[str, object] = load_all_files()
         pbar.update(1)
 
         # 2. TRANSFORMAÇÃO
@@ -64,7 +84,9 @@ def run_pipeline():
         df = filter_out_pendentes(df, data['alvos'])
         total_depois = len(df)
         logging.info(
-            f'Alvos pendentes removidos: {total_antes - total_depois} (restaram {total_depois})'
+            'Alvos pendentes removidos: %d (restaram %d)',
+            total_antes - total_depois,
+            total_depois,
         )
 
         # Sequência de enriquecimento
@@ -100,13 +122,19 @@ def run_pipeline():
         logging.info('Aplicando regras de priorização (P1, P2, P3)...')
         df = apply_priority_rules(df)
 
-        # Remove colunas técnicas (yoy_...)
+        # Identifica colunas yoy_ (técnicas)
         yoy_cols = [c for c in df.columns if c.startswith('yoy_')]
-        if yoy_cols:
+        logging.info('Colunas YoY detectadas: %s', yoy_cols)
+
+        # Se o toggle REMOVE_YOY estiver ativo, removemos essas colunas
+        if REMOVE_YOY and yoy_cols:
             logging.info(
-                f'Removendo {len(yoy_cols)} colunas técnicas (yoy_)...'
+                'Removendo %d colunas técnicas (REMOVE_YOY=True)...',
+                len(yoy_cols),
             )
             df = df.drop(columns=yoy_cols)
+            # limpa a lista para evitar referências posteriores
+            yoy_cols = []
 
         # Filtro: mantém apenas linhas com prioridade definida
         logging.info(
@@ -115,17 +143,31 @@ def run_pipeline():
         total_antes = len(df)
         df = df[df['PRIORIDADE'].notna()].copy()
         total_depois = len(df)
+        pct = (total_depois / total_antes * 100) if total_antes else 0.0
         logging.info(
-            f'Filtro aplicado: {total_antes} → {total_depois} registros '
-            f'({total_depois / total_antes * 100:.1f}% mantidos)'
+            'Filtro aplicado: %d → %d registros (%.1f%% mantidos)',
+            total_antes,
+            total_depois,
+            pct,
         )
 
-        # Reordenação de colunas
-        logging.info('Reordenando colunas para o formato final...')
+        # Identifica colunas de consumo (MM/YYYY)
         consumo_cols = sorted(
             [c for c in df.columns if _MONTH_RE.match(str(c).strip())]
         )
+        logging.info('Colunas de consumo detectadas: %s', consumo_cols)
 
+        # Se o toggle REMOVE_CONSUMO estiver ativo, removemos essas colunas
+        if REMOVE_CONSUMO and consumo_cols:
+            logging.info(
+                'Removendo %d colunas de consumo mensal (REMOVE_CONSUMO=True)...',
+                len(consumo_cols),
+            )
+            df = df.drop(columns=consumo_cols)
+            consumo_cols = []
+
+        # Reordenação de colunas
+        logging.info('Reordenando colunas para o formato final...')
         ordem_final = [
             'UC',
             'STATUS_COMERCIAL',
@@ -167,7 +209,7 @@ def run_pipeline():
         colunas_existentes = [c for c in ordem_final if c in df.columns]
         df = df[colunas_existentes]
 
-        logging.info(f'Colunas finais: {len(colunas_existentes)}')
+        logging.info('Colunas finais: %d', len(colunas_existentes))
 
         pbar.update(1)
 
@@ -177,11 +219,11 @@ def run_pipeline():
         pbar.update(1)
 
         logging.info(
-            f'Pipeline finalizado com sucesso! Arquivo gerado: {output_file}'
+            'Pipeline finalizado com sucesso! Arquivo gerado: %s', output_file
         )
 
-    except Exception as e:
-        logging.error(f'Erro durante a execução do pipeline: {e}')
+    except Exception as exc:
+        logging.error('Erro durante a execução do pipeline: %s', exc)
         raise
     finally:
         pbar.close()

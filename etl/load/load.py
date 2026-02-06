@@ -10,7 +10,7 @@ def save_to_csv(df: pd.DataFrame, output_path: str = 'output'):
     path = Path(output_path)
     path.mkdir(parents=True, exist_ok=True)
 
-    file_name = path / 'CADASTRO_E_CONSUMO_POR_UC_FINAL.csv'
+    file_name = path / 'DIRECIONAMENTO_FINAL.csv'
 
     # decimal=',' faz o 0.106 virar 0,106
     # sep=';' é o padrão que o Excel BR reconhece para abrir colunas direto
