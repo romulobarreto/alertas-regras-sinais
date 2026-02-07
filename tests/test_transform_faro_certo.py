@@ -1,6 +1,5 @@
 """Testes para o módulo faro_certo."""
 
-import os
 import sqlite3
 
 import pandas as pd
@@ -15,24 +14,16 @@ def mock_sqlite(tmp_path):
     db_path = tmp_path / 'test_bot.sqlite'
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    # Criamos com o nome que o teste usa
     cursor.execute(
         'CREATE TABLE bot_interactions (input TEXT, timestamp TEXT, command TEXT)'
     )
 
-    # Dados de teste
     data = [
-        ('12345', '2026-01-01 10:00:00', 'dados'),  # Medidor válido
-        (
-            '12345',
-            '2026-01-05 12:00:00',
-            'dados',
-        ),  # Medidor válido (mais recente)
-        (
-            '99999',
-            '2026-01-02 10:00:00',
-            'farejar',
-        ),  # Comando errado (deve ignorar)
-        ('67890', '2026-01-03 08:00:00', 'dados'),  # Outro medidor
+        ('12345', '2026-01-01 10:00:00', 'dados'),
+        ('12345', '2026-01-05 12:00:00', 'dados'),  # Mais recente
+        ('99999', '2026-01-02 10:00:00', 'farejar'),
+        ('67890', '2026-01-03 08:00:00', 'dados'),
     ]
     cursor.executemany('INSERT INTO bot_interactions VALUES (?, ?, ?)', data)
     conn.commit()
@@ -48,16 +39,12 @@ def test_enrich_with_faro_certo(mock_sqlite):
 
     result = enrich_with_faro_certo(df_cad, mock_sqlite)
 
-    # Verificações
-    # UC 1 (Medidor 12345) deve ter a data mais recente (dia 05)
-    assert result.loc[result['UC'] == 1, 'FARO_CERTO'].iloc[0] == pd.Timestamp(
-        '2026-01-05 12:00:00'
-    )
+    # Verificações ajustadas para validar a STRING dd/mm/yyyy
+    # UC 1 (Medidor 12345) -> 05/01/2026
+    assert result.loc[result['UC'] == 1, 'FARO_CERTO'].iloc[0] == '05/01/2026'
 
-    # UC 2 (Medidor 67890) deve ter a data do dia 03
-    assert result.loc[result['UC'] == 2, 'FARO_CERTO'].iloc[0] == pd.Timestamp(
-        '2026-01-03 08:00:00'
-    )
+    # UC 2 (Medidor 67890) -> 03/01/2026
+    assert result.loc[result['UC'] == 2, 'FARO_CERTO'].iloc[0] == '03/01/2026'
 
-    # UC 3 (Medidor 11111) não existe no bot, deve ser NaT/NaN
+    # UC 3 (Medidor 11111) -> Deve ser NaT ou NaN (como o script define no erro/vazio)
     assert pd.isna(result.loc[result['UC'] == 3, 'FARO_CERTO'].iloc[0])

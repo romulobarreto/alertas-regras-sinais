@@ -1,19 +1,34 @@
 """Módulo para tratamento de dados de consumo mensal."""
+from __future__ import annotations
+
+import re
+
 import pandas as pd
+
+_MONTH_COL_RE = re.compile(r'^\d{2}/\d{4}$')
+
+
+def _is_month_col(col_name: object) -> bool:
+    """Retorna True se col_name corresponde ao padrão MM/YYYY (aceita quotes e espaços)."""
+    if col_name is None:
+        return False
+    # normaliza: converte para str, remove espaços e aspas simples ao redor
+    s = str(col_name).strip().strip("'").strip()
+    return bool(_MONTH_COL_RE.match(s))
 
 
 def treat_monthly_consumption(df: pd.DataFrame) -> pd.DataFrame:
-    """Substituir valores vazios por 0 nas colunas de meses de consumo."""
+    """
+    Substituir valores vazios por 0 nas colunas de meses de consumo (MM/YYYY).
+
+    - Detecta colunas com padrão preciso MM/YYYY.
+    - Converte os valores para numérico (coerce), preenche NaN por 0 e cast para int.
+    - Não altera outras colunas.
+    """
     df_copy = df.copy()
 
-    # Identificar colunas que seguem o padrão MM/YYYY ou 'MM/YYYY'
-    consumption_cols = [
-        col
-        for col in df_copy.columns
-        if ('/' in str(col) and len(str(col).strip("'")) == 7)
-    ]
+    consumption_cols = [col for col in df_copy.columns if _is_month_col(col)]
 
-    # Preencher vazios com 0 e garantir tipo numérico
     for col in consumption_cols:
         df_copy[col] = (
             pd.to_numeric(df_copy[col], errors='coerce').fillna(0).astype(int)

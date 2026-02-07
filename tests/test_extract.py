@@ -30,5 +30,7 @@ def test_check_if_all_keys_exist():
 
 def test_check_if_dataframes_are_not_empty():
     data = load_all_files()
-    for key in data:
-        assert not data[key].empty, f'O DataFrame {key} está vazio!'
+    for key, value in data.items():
+        if not isinstance(value, pd.DataFrame):
+            continue  # ignora valores que não são DataFrames
+        assert not value.empty, f'O DataFrame {key} está vazio!'

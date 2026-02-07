@@ -15,11 +15,7 @@ _MONTH_RE = re.compile(r"^'?(\d{2})/(\d{4})'?$")
 
 def _get_consumption_month_cols(df: pd.DataFrame) -> List[str]:
     """Retorna colunas de consumo no formato MM/YYYY."""
-    cols: List[str] = []
-    for c in df.columns:
-        if _MONTH_RE.match(str(c).strip()):
-            cols.append(c)
-    return cols
+    return [c for c in df.columns if _MONTH_RE.match(str(c).strip())]
 
 
 def _month_key(col: str) -> Tuple[int, int]:
@@ -66,7 +62,6 @@ def _has_fraude_historica(codigo: pd.Series) -> pd.Series:
 
 def _strip_accents_series(s: pd.Series) -> pd.Series:
     """Remove acentos e normaliza caixa de uma Series de strings."""
-    # Garantir strings
     s = s.fillna('').astype(str)
 
     def _normalize_text(x: str) -> str:
@@ -111,11 +106,8 @@ def calculate_yoy(df: pd.DataFrame) -> pd.DataFrame:
             )
 
     if yoy_cols:
-        # Calcula a média e garante que seja um float decimal (ex: -0.40 para -40%)
         out['MEDIA_YOY'] = out[yoy_cols].mean(axis=1, skipna=True)
 
-        # Se por algum motivo o número vier "inteiro" (ex: -40 em vez de -0.4)
-        # fazemos uma trava de segurança:
         mask_grande = out['MEDIA_YOY'].abs() > 2
         out.loc[mask_grande, 'MEDIA_YOY'] = (
             out.loc[mask_grande, 'MEDIA_YOY'] / 100
@@ -150,8 +142,18 @@ def flag_minimum_by_phase(df: pd.DataFrame) -> pd.DataFrame:
     for c in month_cols:
         out[c] = pd.to_numeric(out[c], errors='coerce')
 
-    status = out['STATUS_COMERCIAL'].astype(str).str.strip().str.upper()
-    fase = out['FASE'].astype(str).str.strip().str.upper()
+    status = (
+        out.get('STATUS_COMERCIAL', pd.Series('', index=out.index))
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+    fase = (
+        out.get('FASE', pd.Series('', index=out.index))
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
 
     out['NO_MINIMO_4M'] = pd.NA
 
@@ -177,7 +179,12 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     out['MOTIVO_PRIORIDADE'] = pd.NA
 
     # --- PREPARAÇÃO DE DADOS ---
-    status = out['STATUS_COMERCIAL'].astype(str).str.strip().str.upper()
+    status = (
+        out.get('STATUS_COMERCIAL', pd.Series('', index=out.index))
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
 
     # Datas de Esforço (Fiscalização, Bate Caixa e Faro Certo)
     fisc_date = pd.to_datetime(
@@ -231,8 +238,15 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     media_yoy = pd.to_numeric(
         out.get('MEDIA_YOY', pd.Series(index=out.index)), errors='coerce'
     )
-    fabricante = out['FABRICANTE'].fillna('').astype(str).str.upper()
-    ano_medidor = pd.to_numeric(out['ANO'], errors='coerce').fillna(0)
+    fabricante = (
+        out.get('FABRICANTE', pd.Series('', index=out.index))
+        .fillna('')
+        .astype(str)
+        .str.upper()
+    )
+    ano_medidor = pd.to_numeric(
+        out.get('ANO', pd.Series(0, index=out.index)), errors='coerce'
+    ).fillna(0)
 
     # Apontamentos
     apontamentos_relevantes = [
@@ -253,17 +267,14 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'TROCA DE EQUIPAMENTO POR ENCHENTE',
     ]
     has_apontamento = (
-        out['LEITURISTA']
+        out.get('LEITURISTA', pd.Series('', index=out.index))
         .fillna('')
         .astype(str)
         .str.upper()
         .isin(apontamentos_relevantes)
     )
 
-    # --- APLICAÇÃO DAS REGRAS (HIERARQUIA) ---
-
     # ========== P1 (ALERTAS) ==========
-    # P1.1: Prospeccao: IRREGULARIDADE CONFIRMADA no prospector -> P1 se NÃO existir esforço algum
     no_esforco_any = (
         fisc_date.isna()
         & bate_caixa.isna()
@@ -277,19 +288,15 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P1',
         'P1-PROSPECCAO IRREGULARIDADE CONFIRMADA',
     ]
-    # P1.2: DS + NRT - (Fisc/Bate Caixa/Faro Certo após Move-out)
+
     tem_move_out = move_out.notna()
 
-    # Converte NOTA DE RECLAMACAO para datetime se ainda não estiver
     nota_reclamacao = pd.to_datetime(
-        out.get('NOTA DE RECLAMACAO', pd.Series(index=out.index)),
+        out.get('NOTA_DE_RECLAMACAO', pd.Series(index=out.index)),
         errors='coerce',
     )
-
-    # A reclamação tem que ser >= move_out (depois ou no mesmo dia do desligamento)
     nrt_apos_ds = nota_reclamacao.notna() & (nota_reclamacao >= move_out)
 
-    # Esforço após desligamento (inclui Faro Certo e prospecção 'sem indício')
     esforco_apos_ds = (
         (fisc_date.notna() & (fisc_date >= move_out))
         | (bate_caixa.notna() & (bate_caixa >= move_out))
@@ -305,7 +312,6 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P1-DESLIGADO COM RECLAMAÇÃO',
     ]
 
-    # P1.3: LG + MINIMO + NRT - (Fisc/Bate Caixa/Faro Certo 4 meses)
     cond_p1_2 = (
         (status == 'LG')
         & no_minimo
@@ -319,7 +325,6 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # ========== P2 (REGRAS) ==========
-    # P2.1: Prospeccao: INDÍCIO DE IRREGULARIDADE no prospector -> P2 se NÃO existir esforço algum
     cond_prosp_p2 = (
         prospec_is_indicio & no_esforco_any & out['PRIORIDADE'].isna()
     )
@@ -328,7 +333,6 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P2-PROSPECCAO INDICIO DE IRREGULARIDADE',
     ]
 
-    # P2.2: LG + REINCIDENTE + QUEDA 40% - (Fisc/Bate Caixa/Faro Certo 6 meses)
     cond_p2_1 = (
         (status == 'LG')
         & has_fraude
@@ -341,7 +345,6 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P2-REINCIDENTE COM QUEDA DE CONSUMO',
     ]
 
-    # P2.3: LG + MINIMO + APONTAMENTO - (Fisc/Bate Caixa/Faro Certo 4 meses)
     cond_p2_2 = (
         (status == 'LG')
         & no_minimo
@@ -354,7 +357,6 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P2-MÍNIMO COM APONTAMENTO SUSPEITO',
     ]
 
-    # P2.4: DOWERTECH + 2013 + LG + MINIMO - (Fisc/Bate Caixa/Faro Certo 4 meses)
     cond_p2_3 = (
         fabricante.str.contains('DOWERTECH', na=False)
         & (ano_medidor == 2013)
@@ -368,7 +370,6 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P2-MEDIDOR DOWERTECH 2013 NO MÍNIMO',
     ]
 
-    # P2.5: DOWERTECH + 2014 + LG + MINIMO - (Fisc/Bate Caixa/Faro Certo 4 meses)
     cond_p2_4 = (
         fabricante.str.contains('DOWERTECH', na=False)
         & (ano_medidor == 2014)
@@ -383,7 +384,6 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # ========== P3 (SINAIS) ==========
-    # P3.0: ANO <= 2000 + LG + MINIMO - (Fisc/Bate Caixa/Faro Certo 4 meses)
     cond_p3_4 = (
         (ano_medidor <= 2000)
         & (status == 'LG')
@@ -396,8 +396,12 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P3-MEDIDOR ANTIGO NO MÍNIMO',
     ]
 
-    # P3.1: CONDOMINIOS ALTO DS (Lógica de agrupamento)
-    cond_col = out['CONDOMINIO'].fillna('').astype(str).str.upper()
+    cond_col = (
+        out.get('CONDOMINIO', pd.Series('', index=out.index))
+        .fillna('')
+        .astype(str)
+        .str.upper()
+    )
     if 'ENDERECO' in out.columns:
         ds_por_endereco = out[status == 'DS'].groupby('ENDERECO').size()
         enderecos_criticos = ds_por_endereco[ds_por_endereco >= 5].index
@@ -411,7 +415,6 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
             'P3-CONDOMÍNIO COM ALTO ÍNDICE DE DS',
         ]
 
-    # P3.2: DS RECENTE (6m) + FRAUDE - (Fisc/Bate Caixa/Faro Certo após Move-out)
     ds_recente = move_out >= (ref_date - timedelta(days=180))
     cond_p3_2 = (
         (status == 'DS')
@@ -425,7 +428,6 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P3-DESLIGADO RECENTE COM HISTÓRICO DE FRAUDE',
     ]
 
-    # P3.3: LG + MINIMO - (Fisc/Bate Caixa/Faro Certo 4 meses)
     cond_p3_3 = (
         (status == 'LG')
         & no_minimo
@@ -437,7 +439,6 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P3-CONSUMO NO MÍNIMO DA FASE',
     ]
 
-    # P3.4: LG + QUEDA 40% - (Fisc/Bate Caixa/Faro Certo 6 meses)
     cond_p3_4 = (
         (status == 'LG')
         & (media_yoy <= -0.4)

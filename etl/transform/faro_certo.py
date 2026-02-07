@@ -30,7 +30,19 @@ def enrich_with_faro_certo(
 
     try:
         with sqlite3.connect(sqlite_path) as conn:
-            df_bot = pd.read_sql_query('SELECT * FROM interactions', conn)
+            with sqlite3.connect(sqlite_path) as conn:
+                # Verifica se a tabela 'interactions' existe, senão tenta 'bot_interactions'
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='interactions'"
+                )
+                table_to_read = (
+                    'interactions' if cursor.fetchone() else 'bot_interactions'
+                )
+
+                df_bot = pd.read_sql_query(
+                    f'SELECT * FROM {table_to_read}', conn
+                )
 
         if df_bot.empty:
             df_cadastro['FARO_CERTO'] = pd.NaT

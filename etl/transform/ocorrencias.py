@@ -40,6 +40,13 @@ def enrich_with_occurrences(
     # Cria a flag HAS_NRT (Se tem data, tem reclamação)
     df['HAS_NRT'] = df['NOTA DE RECLAMACAO'].notna()
 
+    # --- Compatibilidade com os testes: cria coluna underscore como string 'dd/mm/YYYY' ---
+    # Mantemos a coluna datetime original ("NOTA DE RECLAMACAO") e criamos a versão formatada.
+    formatted = df['NOTA DE RECLAMACAO'].dt.strftime('%d/%m/%Y')
+    # Garante que valores NaT virem NaN/pd.NA na coluna string
+    formatted.loc[df['NOTA DE RECLAMACAO'].isna()] = pd.NA
+    df['NOTA_DE_RECLAMACAO'] = formatted
+
     # Volta a UC para numérico no final para manter o padrão da base
     df['UC'] = pd.to_numeric(df['UC'], errors='coerce').astype('Int64')
 

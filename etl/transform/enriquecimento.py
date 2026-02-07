@@ -1,15 +1,38 @@
 """Módulo para enriquecimento de dados de bate caixa, seccional, latitude e longitude."""
+from __future__ import annotations
+
+from typing import Dict
+
 import pandas as pd
 
 
-def enrich_with_new_bases(df: pd.DataFrame, data: dict) -> pd.DataFrame:
-    """Adiciona Bate Caixa, Seccional, Classe Consumo e Coordenadas."""
+def enrich_with_new_bases(
+    df: pd.DataFrame, data: Dict[str, pd.DataFrame]
+) -> pd.DataFrame:
+    """Adiciona BATE_CAIXA, SECCIONAL, CLASSE_CONSUMO, LATITUDE e LONGITUDE ao DataFrame.
+
+    Mantém o comportamento original, apenas adiciona checagens e robustez em tipos.
+    """
     out = df.copy()
 
+    # Valida presença das bases esperadas
+    for key in ('sinergia', 'seccional', 'localizacao'):
+        if key not in data:
+            raise KeyError(f"A chave '{key}' precisa existir no dict data.")
+
     # 1. Bate Caixa (Sinergia)
-    # Pegamos a UC (number) e a data (timestamp)
     sinergia = data['sinergia'].copy()
-    sinergia['timestamp'] = pd.to_datetime(sinergia['timestamp']).dt.date
+    # Garante tipos coerentes
+    if 'number' not in sinergia.columns or 'timestamp' not in sinergia.columns:
+        raise KeyError(
+            "A tabela 'sinergia' precisa ter as colunas 'number' e 'timestamp'."
+        )
+
+    sinergia['number'] = pd.to_numeric(sinergia['number'], errors='coerce')
+    # Parse seguro da timestamp; keep apenas a data
+    sinergia['timestamp'] = pd.to_datetime(
+        sinergia['timestamp'], errors='coerce'
+    ).dt.date
     # Se houver duplicatas de UC no Sinergia, pegamos a data mais recente
     sinergia = sinergia.sort_values('timestamp').drop_duplicates(
         'number', keep='last'
@@ -28,30 +51,51 @@ def enrich_with_new_bases(df: pd.DataFrame, data: dict) -> pd.DataFrame:
 
     # 2. Seccional
     seccional = data['seccional'].copy()
+    if 'MUNICIPIO' not in seccional.columns:
+        raise KeyError(
+            "A tabela 'seccional' precisa ter a coluna 'MUNICIPIO'."
+        )
+    # mantém nome original 'SECCCIONAL' vindo da fonte, renomeia para SECCIONAL no resultado
+    if 'SECCCIONAL' not in seccional.columns:
+        raise KeyError(
+            "A tabela 'seccional' precisa ter a coluna 'SECCCIONAL' (origem)."
+        )
+
     out = out.merge(
-        seccional[['MUNICIPIO', 'SECCCIONAL']], on='MUNICIPIO', how='left'
+        seccional[['MUNICIPIO', 'SECCCIONAL']],
+        on='MUNICIPIO',
+        how='left',
     ).rename(columns={'SECCCIONAL': 'SECCIONAL'})
 
     # 3. Localização e Tipo Cliente
     loc = data['localizacao'].copy()
+    for required in ('uc', 'classe_consumo', 'latitude', 'longitude'):
+        if required not in loc.columns:
+            raise KeyError(
+                f"A tabela 'localizacao' precisa ter a coluna '{required}'."
+            )
 
-    # Garante que UC seja tratada como número para o merge
+    # Garante que UC seja tratado como número para o merge
     loc['uc'] = pd.to_numeric(loc['uc'], errors='coerce')
     out['UC'] = pd.to_numeric(out['UC'], errors='coerce')
 
     # --- TRATAMENTO DE LAT/LONG PARA EXCEL ---
-    for col in ['latitude', 'longitude']:
-        # 1. Converte para string e troca vírgula por ponto
-        loc[col] = loc[col].astype(str).str.replace(',', '.')
+    for col in ('latitude', 'longitude'):
+        # 1. Converte para string e troca vírgula por ponto (regex=False para evitar warning)
+        loc[col] = loc[col].astype(str).str.replace(',', '.', regex=False)
         # 2. Converte para numérico
         loc[col] = pd.to_numeric(loc[col], errors='coerce')
-        # 3. Se o número for maior que 100 ou menor que -100, é porque está sem o ponto decimal
-        # Ex: -3133742773 vira -31.33742773
-        mask = (loc[col] > 100) | (loc[col] < -100)
-        # Dividimos por 10^8 ou 10^7 dependendo do tamanho, mas o padrão de lat/long costuma ser 2 casas antes do ponto
-        # Uma forma segura é garantir que o número fique entre -180 e 180
-        while loc.loc[mask, col].abs().max() > 180:
-            loc.loc[mask, col] = loc.loc[mask, col] / 10
+        # 3. Ajusta valores muito grandes (sem ponto decimal). Divide por 10 até cair em intervalo [-180, 180].
+        mask = loc[col].abs() > 180
+        # Evita erro se não houver valores que satisfaçam a máscara
+        if mask.any():
+            # Enquanto houver valores fora do intervalo, divide por 10
+            while True:
+                sub = loc.loc[mask, col].abs()
+                if sub.empty or sub.max() <= 180:
+                    break
+                loc.loc[mask, col] = loc.loc[mask, col] / 10
+                mask = loc[col].abs() > 180
 
     out = (
         out.merge(

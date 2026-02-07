@@ -2,7 +2,34 @@
 
 from __future__ import annotations
 
+import re
+from typing import Optional
+
 import pandas as pd
+
+_ISO_DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+
+
+def _safe_parse_dates(series: pd.Series) -> pd.Series:
+    """Parse seguro que prioriza YYYY-MM-DD (ISO) com formato explícito e para os demais casos, usa dayfirst=True."""
+    s = series.astype(str).fillna('')
+    out = pd.Series(pd.NaT, index=series.index, dtype='datetime64[ns]')
+
+    # máscara para ISO (YYYY-MM-DD)
+    mask_iso = s.str.match(_ISO_DATE_RE)
+
+    if mask_iso.any():
+        out.loc[mask_iso] = pd.to_datetime(
+            s.loc[mask_iso], format='%Y-%m-%d', errors='coerce'
+        )
+
+    # para o resto, tenta parse genérico com dayfirst=True
+    if (~mask_iso).any():
+        out.loc[~mask_iso] = pd.to_datetime(
+            s.loc[~mask_iso], errors='coerce', dayfirst=True
+        )
+
+    return out
 
 
 def enrich_with_prospeccao(
@@ -26,13 +53,12 @@ def enrich_with_prospeccao(
     # (assume que a planilha tem colunas 'UC', 'DATA', 'CONCLUSAO').
     for col in ['UC', 'DATA', 'CONCLUSAO']:
         if col not in pros.columns:
-            # Tenta versões com caixa diferente (caso a planilha venha com nomes diferentes)
             matches = [c for c in pros.columns if c.strip().upper() == col]
             if matches:
                 pros = pros.rename(columns={matches[0]: col})
 
-    # Garante datetime na coluna de data
-    pros['DATA'] = pd.to_datetime(pros['DATA'], errors='coerce', dayfirst=True)
+    # Garante datetime na coluna de data usando parser seguro
+    pros['DATA'] = _safe_parse_dates(pros['DATA'])
 
     # Limpa UC (remove .0, espaços)
     pros['UC'] = (
@@ -70,8 +96,7 @@ def enrich_with_prospeccao(
         out = out.drop(columns=['UC_pros'])
     out = out.drop(columns=['UC_STR'])
 
-    # Normaliza a conclusão (string limpa) — sem remover acentos aqui, vamos
-    # normalizar no regras_negocio para comparações (lá fazemos remoção de acento).
+    # Normaliza a conclusão (string limpa)
     out['CONCLUSAO_PROSPECTOR'] = (
         out['CONCLUSAO_PROSPECTOR'].astype(str).fillna('').str.strip()
     )
