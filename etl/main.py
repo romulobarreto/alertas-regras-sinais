@@ -17,9 +17,11 @@ from etl.transform.apontamento import (
 )
 from etl.transform.consumo import treat_monthly_consumption
 from etl.transform.enriquecimento import enrich_with_new_bases
+from etl.transform.faro_certo import enrich_with_faro_certo
 from etl.transform.inspecoes import enrich_with_inspections
 from etl.transform.medidores import enrich_with_medidores
 from etl.transform.ocorrencias import enrich_with_occurrences
+from etl.transform.prospeccao import enrich_with_prospeccao
 from etl.transform.regras_negocio import (
     apply_priority_rules,
     calculate_yoy,
@@ -42,19 +44,11 @@ logging.basicConfig(
 # -----------------------------------------------------------------------------
 # Regex e toggles
 # -----------------------------------------------------------------------------
-# Regex para identificar colunas de consumo (MM/YYYY), com ou sem aspas
 _MONTH_RE = re.compile(r"^'?(\d{2})/(\d{4})'?$")
 
-# Toggle: remover colunas de consumo mensal do CSV final
-# - True: remove (arquivo final sem as colunas de consumo)
-# - False: mantém as colunas de consumo no arquivo final
 REMOVE_CONSUMO = True
-
-# Toggle: remover colunas técnicas de YoY do CSV final
-# - True: remove (arquivo final sem as colunas yoy_)
-# - False: mantém as colunas yoy_ no arquivo final
 REMOVE_YOY = True
-
+EXPORT_ONLY_PRIORITY = True
 
 # -----------------------------------------------------------------------------
 # Pipeline
@@ -76,22 +70,15 @@ def run_pipeline() -> None:
         logging.info('Etapa 2: Iniciando transformações...')
         df = data['cadastro_consumo']
 
-        # Remove os alvos já abertos pelas outras áreas
-        logging.info(
-            'Removendo UCs com alvo pendente (CESTA BT - aba PENDENTE)...'
-        )
-        total_antes = len(df)
+        logging.info('Removendo UCs com alvo pendente (CESTA BT)...')
         df = filter_out_pendentes(df, data['alvos'])
-        total_depois = len(df)
-        logging.info(
-            'Alvos pendentes removidos: %d (restaram %d)',
-            total_antes - total_depois,
-            total_depois,
-        )
 
-        # Sequência de enriquecimento
         logging.info('Enriquecendo com dados de medidores...')
         df = enrich_with_medidores(df, data['medidores'])
+
+        faro_path = data['faro_sqlite']
+        logging.info('Enriquecendo com Faro Certo (SQLite): %s', faro_path)
+        df = enrich_with_faro_certo(df, faro_path)
 
         logging.info('Enriquecendo com dados de inspeções...')
         df = enrich_with_inspections(df, data['inspecoes'])
@@ -99,70 +86,42 @@ def run_pipeline() -> None:
         logging.info('Enriquecendo com dados de ocorrências...')
         df = enrich_with_occurrences(df, data['ocorrencias'])
 
+        # ----- NOVO: Enriquecimento com Prospeccao -----
+        logging.info('Enriquecendo com Prospeccao de Alvos (motoca)...')
+        df = enrich_with_prospeccao(df, data.get('prospeccao'))
+        # ------------------------------------------------
+
         logging.info('Enriquecendo com Sinergia, Seccional e Localização...')
         df = enrich_with_new_bases(df, data)
 
-        # Apontamento (2 passos)
         logging.info('Tratando códigos de apontamento...')
         apontamento_treated = treat_apontamento_codes(
             data['apontamento'], data['codigos_leitura']
         )
         df = enrich_with_apontamento(df, apontamento_treated)
 
-        # Consumo e Regras de Negócio
-        logging.info('Tratando consumo mensal...')
+        logging.info('Tratando consumo mensal e calculando YoY...')
         df = treat_monthly_consumption(df)
-
-        logging.info('Calculando YoY (Year over Year)...')
         df = calculate_yoy(df)
 
-        logging.info('Identificando consumo no mínimo da fase...')
+        logging.info(
+            'Identificando consumo no mínimo e aplicando priorização...'
+        )
         df = flag_minimum_by_phase(df)
-
-        logging.info('Aplicando regras de priorização (P1, P2, P3)...')
         df = apply_priority_rules(df)
 
-        # Identifica colunas yoy_ (técnicas)
-        yoy_cols = [c for c in df.columns if c.startswith('yoy_')]
-        logging.info('Colunas YoY detectadas: %s', yoy_cols)
-
-        # Se o toggle REMOVE_YOY estiver ativo, removemos essas colunas
-        if REMOVE_YOY and yoy_cols:
-            logging.info(
-                'Removendo %d colunas técnicas (REMOVE_YOY=True)...',
-                len(yoy_cols),
-            )
+        if REMOVE_YOY:
+            yoy_cols = [c for c in df.columns if c.startswith('yoy_')]
             df = df.drop(columns=yoy_cols)
-            # limpa a lista para evitar referências posteriores
-            yoy_cols = []
 
-        # Filtro: mantém apenas linhas com prioridade definida
-        logging.info(
-            'Filtrando apenas registros com prioridade (P1, P2, P3)...'
-        )
-        total_antes = len(df)
-        df = df[df['PRIORIDADE'].notna()].copy()
-        total_depois = len(df)
-        pct = (total_depois / total_antes * 100) if total_antes else 0.0
-        logging.info(
-            'Filtro aplicado: %d → %d registros (%.1f%% mantidos)',
-            total_antes,
-            total_depois,
-            pct,
-        )
+        if EXPORT_ONLY_PRIORITY:
+            df = df[df['PRIORIDADE'].notna()].copy()
 
-        # Identifica colunas de consumo (MM/YYYY)
+        # Limpeza de colunas de consumo mensal
         consumo_cols = sorted(
             [c for c in df.columns if _MONTH_RE.match(str(c).strip())]
         )
-        logging.info('Colunas de consumo detectadas: %s', consumo_cols)
-
-        # Se o toggle REMOVE_CONSUMO estiver ativo, removemos essas colunas
-        if REMOVE_CONSUMO and consumo_cols:
-            logging.info(
-                'Removendo %d colunas de consumo mensal (REMOVE_CONSUMO=True)...',
-                len(consumo_cols),
-            )
+        if REMOVE_CONSUMO:
             df = df.drop(columns=consumo_cols)
             consumo_cols = []
 
@@ -193,6 +152,9 @@ def run_pipeline() -> None:
         ordem_final += consumo_cols
         ordem_final += [
             'BATE_CAIXA',
+            'FARO_CERTO',
+            'DATA_PROSPECTOR',
+            'CONCLUSAO_PROSPECTOR',
             'FISCALIZACAO',
             'COD',
             'NOTA DE RECLAMACAO',
@@ -205,11 +167,8 @@ def run_pipeline() -> None:
             'LONGITUDE',
         ]
 
-        # Garante que só usamos colunas que realmente existem
         colunas_existentes = [c for c in ordem_final if c in df.columns]
         df = df[colunas_existentes]
-
-        logging.info('Colunas finais: %d', len(colunas_existentes))
 
         pbar.update(1)
 
@@ -218,12 +177,10 @@ def run_pipeline() -> None:
         output_file = save_to_csv(df)
         pbar.update(1)
 
-        logging.info(
-            'Pipeline finalizado com sucesso! Arquivo gerado: %s', output_file
-        )
+        logging.info(f'Pipeline finalizado! Arquivo: {output_file}')
 
     except Exception as exc:
-        logging.error('Erro durante a execução do pipeline: %s', exc)
+        logging.error(f'Erro no pipeline: {exc}')
         raise
     finally:
         pbar.close()

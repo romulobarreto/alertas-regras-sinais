@@ -69,9 +69,6 @@ Ao final, é gerado um CSV pronto para uso no Excel/Power BI:
 
 Ele já sai com:
 - `PRIORIDADE` e `MOTIVO_PRIORIDADE`
-- `MEDIA_YOY` (decimal, pronto pra formatar como % no Excel)
-- `LATITUDE` e `LONGITUDE`
-- `BATE_CAIXA`, `FISCALIZACAO` e `NOTA DE RECLAMAÇÃO` (quando existirem).
 
 ## 🛠️ Como rodar (dev)
 
@@ -133,21 +130,11 @@ A documentação do projeto fica no site gerado com MkDocs.
 pytest -q
 ```
 
-## 🧠 Ideias de próximos passos (fork)
+## 🧠 Visualização e planejamento de execução
 
 - 🗺️ **Streamlit** com mapa (clusters por seccional/município)
-- 📍 Sugestão automática de rotas por proximidade
 - 📈 Métricas de acurácia (recuperação/inspeção) por regra
-- 🔄 Integração com fontes oficiais (quando disponível)
 
-## 🤝 Contribuição
-
-Se tu for do time e quiser melhorar algo:
-
-1. Abre uma issue com a ideia
-2. Cria uma branch
-3. Manda PR
-
----
+## 👨🏻‍💻 Autor
 
 Feito com energia por Rômulo Barreto da Silva - Analista de Distribuição ⚡

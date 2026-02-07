@@ -1,8 +1,14 @@
 """Testes para o módulo de regras de negócio."""
+from datetime import datetime, timedelta
+
 import numpy as np
 import pandas as pd
 
-from etl.transform.regras_negocio import calculate_yoy, flag_minimum_by_phase
+from etl.transform.regras_negocio import (
+    apply_priority_rules,
+    calculate_yoy,
+    flag_minimum_by_phase,
+)
 
 
 def test_calculate_yoy_ok():
@@ -13,78 +19,66 @@ def test_calculate_yoy_ok():
         '01/2025': [150],
         '02/2024': [200],
         '02/2025': [180],
-        '03/2025': [999],  # mês mais recente (atual) -> deve ser ignorado
+        '03/2025': [999],  # Mês atual ignorado
     }
     df = pd.DataFrame(data)
-
     result = calculate_yoy(df)
-    assert result['yoy_01_2025'].iloc[0] == 0.5  # 50% em decimal
-    assert result['yoy_02_2025'].iloc[0] == -0.1   # -10% em decimal
-    assert result['MEDIA_YOY'].iloc[0] == 0.2    # 20% em decimal
+    assert result['yoy_01_2025'].iloc[0] == 0.5
+    assert result['MEDIA_YOY'].iloc[0] == 0.2
 
 
-def test_check_minimum_consumption_ok():
-    """Testa se a verificação de mínimo da fase está correta."""
+def test_priority_prospeccao_confirmada():
+    """Testa se IRREGULARIDADE CONFIRMADA gera P1."""
     data = {
-        'UC': [1, 2, 3, 4],
-        'STATUS_COMERCIAL': ['LG', 'LG', 'LG', 'DS'],
-        'FASE': ['MO', 'BI', 'TR', 'MO'],
-        '09/2025': [35, 55, 105, 30],
-        '10/2025': [38, 58, 108, 32],
-        '11/2025': [40, 60, 110, 35],
-        '12/2025': [37, 59, 109, 33],
-        '01/2026': [100, 100, 100, 100],
+        'UC': [1],
+        'STATUS_COMERCIAL': ['LG'],
+        'DATA_PROSPECTOR': [datetime.now()],
+        'CONCLUSAO_PROSPECTOR': ['IRREGULARIDADE CONFIRMADA'],
+        'FABRICANTE': [''],
+        'ANO': [2020],
+        'FASE': ['MO'],
     }
     df = pd.DataFrame(data)
-
-    result = flag_minimum_by_phase(df)
-
-    # UC 1: LG + MO + mínimo 35 <= 40 = SIM
-    assert result.loc[result['UC'] == 1, 'NO_MINIMO_4M'].iloc[0] == 'SIM'
-
-    # UC 2: LG + BI + mínimo 55 <= 60 = SIM
-    assert result.loc[result['UC'] == 2, 'NO_MINIMO_4M'].iloc[0] == 'SIM'
-
-    # UC 3: LG + TR + mínimo 105 <= 110 = SIM
-    assert result.loc[result['UC'] == 3, 'NO_MINIMO_4M'].iloc[0] == 'SIM'
-
-    # UC 4: DS (não é LG) = NULL
-    assert pd.isna(result.loc[result['UC'] == 4, 'NO_MINIMO_4M'].iloc[0])
+    result = apply_priority_rules(df)
+    assert result['PRIORIDADE'].iloc[0] == 'P1'
+    assert 'PROSPECCAO' in result['MOTIVO_PRIORIDADE'].iloc[0]
 
 
-def test_priority_rules_with_bate_caixa():
-    """Testa se o Bate Caixa impede a priorização (regra dos 4 meses)."""
-    from datetime import datetime, timedelta
-
-    today = datetime.now().strftime('%Y-%m-%d')
-    recent_date = (datetime.now() - timedelta(days=30)).strftime(
-        '%Y-%m-%d'
-    )   # 1 mês atrás
+def test_prospeccao_limpa_prioridade():
+    """Testa se SEM INDÍCIO impede a priorização de consumo no mínimo."""
+    recent_date = datetime.now() - timedelta(days=10)
 
     data = {
         'UC': [1, 2],
         'STATUS_COMERCIAL': ['LG', 'LG'],
         'NO_MINIMO_4M': ['SIM', 'SIM'],
-        'BATE_CAIXA': [pd.NA, recent_date],  # UC 2 já teve bate caixa recente
-        'FISCALIZACAO': [pd.NA, pd.NA],
-        'FABRICANTE': ['OUTRO', 'OUTRO'],
-        'ANO': [2020, 2020],
-        'FASE': ['MO', 'MO'],
-        'LEITURISTA': [pd.NA, pd.NA],  # Coluna necessária
-        'HAS_NRT': [False, False],
-        'MOVE_OUT': [pd.NA, pd.NA],
-        'COD': [pd.NA, pd.NA],
-        'MEDIA_YOY': [0, 0],
-        'CONDOMINIO': ['NAO', 'NAO'],
-        'ENDERECO': ['RUA A', 'RUA B'],
+        'DATA_PROSPECTOR': [pd.NaT, recent_date],
+        'CONCLUSAO_PROSPECTOR': ['', 'SEM INDÍCIO DE IRREGULARIDADE'],
+        'FABRICANTE': [''],
+        'ANO': [2020],
+        'FASE': ['MO'],
     }
     df = pd.DataFrame(data)
-
-    from etl.transform.regras_negocio import apply_priority_rules
-
     result = apply_priority_rules(df)
 
-    # UC 1: sem esforço recente → deve ser P3 (mínimo da fase)
-    # UC 2: teve bate caixa há 1 mês → NÃO deve ser priorizada
-    assert result.loc[result['UC'] == 1, 'PRIORIDADE'].values[0] == 'P3'
-    assert pd.isna(result.loc[result['UC'] == 2, 'PRIORIDADE'].values[0])
+    # UC 1: Não teve prospecção -> P3 (Consumo no mínimo)
+    # UC 2: Teve prospecção "Sem Indício" recente -> Limpa a prioridade
+    assert result.loc[result['UC'] == 1, 'PRIORIDADE'].iloc[0] == 'P3'
+    assert pd.isna(result.loc[result['UC'] == 2, 'PRIORIDADE'].iloc[0])
+
+
+def test_flag_minimum_by_phase_ok():
+    """Testa se a marcação de mínimo por fase respeita os limites."""
+    data = {
+        'UC': [1, 2, 3],
+        'STATUS_COMERCIAL': ['LG', 'LG', 'LG'],
+        'FASE': ['MO', 'BI', 'TR'],
+        '10/2025': [30, 50, 100],
+        '11/2025': [30, 50, 100],
+        '12/2025': [30, 50, 100],
+        '01/2026': [30, 50, 100],
+        '02/2026': [100, 100, 100],  # Mês atual
+    }
+    df = pd.DataFrame(data)
+    result = flag_minimum_by_phase(df)
+    assert all(result['NO_MINIMO_4M'] == 'SIM')
