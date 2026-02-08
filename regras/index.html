@@ -580,66 +580,76 @@
 <thead>
 <tr>
 <th style="text-align: left;">Prioridade</th>
-<th style="text-align: left;">Nome do Alerta / Regra</th>
-<th style="text-align: left;">Lógica Técnica (O que o Python faz)</th>
+<th style="text-align: left;">Alerta / Regra / Sinal</th>
+<th style="text-align: left;">Lógica Técnica</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: left;"><strong>P1</strong> 🚨</td>
-<td style="text-align: left;"><strong>Desligado com Reclamação</strong></td>
-<td style="text-align: left;">Status <code>DS</code> + Nota de Reclamação (após o desligamento da UC) + Sem fiscalização/Bate-Caixa (após o desligamento da UC).</td>
+<td style="text-align: left;">Desligado com Reclamação</td>
+<td style="text-align: left;"><code>DS</code> + tem reclamação (após move-out)+ <strong>sem</strong> visita após move-out</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>P1</strong> 🚨</td>
-<td style="text-align: left;"><strong>Mínimo da Fase com Reclamação</strong></td>
-<td style="text-align: left;">Status <code>LG</code> + Consumo no mínimo da fase (4 meses) + Nota de Reclamação + Sem fiscalização/Bate-Caixa recente (4 meses).</td>
+<td style="text-align: left;">Mínimo da Fase com Reclamação</td>
+<td style="text-align: left;"><code>LG</code> + mínimo (4m) + reclamação + <strong>sem</strong> visita (4m)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>P1</strong> 🚨</td>
+<td style="text-align: left;">Prospecção dos motoqueiros</td>
+<td style="text-align: left;">Visita do prospector + Irregularidade confirmada + <strong>sem</strong> visita posterior</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>P2</strong> ⚠️</td>
-<td style="text-align: left;"><strong>Reincidente com Queda</strong></td>
-<td style="text-align: left;">Status <code>LG</code> + Histórico de deficiência técnica + Queda de média anual (YoY) ≥ 40% + Sem fiscalização/Bate-Caixa recente (6 meses).</td>
+<td style="text-align: left;">Prospecção dos motoqueiros</td>
+<td style="text-align: left;">Visita do prospector + Indício de irregularidade + <strong>sem</strong> visita posterior</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>P2</strong> ⚠️</td>
-<td style="text-align: left;"><strong>Mínimo com Apontamento</strong></td>
-<td style="text-align: left;">Status <code>LG</code> + Consumo no mínimo da fase + Leiturista anotou vestígio/defeito + Sem fiscalização/Bate-Caixa recente (4 meses).</td>
+<td style="text-align: left;">Reincidente com Queda</td>
+<td style="text-align: left;"><code>LG</code> + fraude histórica + YoY ≤ -40% + <strong>sem</strong> visita (6m)</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>P2</strong> ⚠️</td>
-<td style="text-align: left;"><strong>Dowertech 2014 no Mínimo</strong></td>
-<td style="text-align: left;">Fabricante <code>DOWERTECH</code> + Ano <code>2014</code> + Status <code>LG</code> + Consumo no mínimo da fase + Sem fiscalização/Bate-Caixa (4 meses).</td>
+<td style="text-align: left;">Mínimo com Apontamento Suspeito</td>
+<td style="text-align: left;"><code>LG</code> + mínimo + apontamento relevante + <strong>sem</strong> visita (4m)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>P3</strong> ⚠️</td>
-<td style="text-align: left;"><strong>Medidor Antigo no Mínimo</strong></td>
-<td style="text-align: left;">Ano do Medidor $\le$ 2000 + Status <code>LG</code> + Consumo no mínimo da fase + Sem fiscalização/Bate-Caixa recente (4 meses).</td>
+<td style="text-align: left;"><strong>P2</strong> ⚠️</td>
+<td style="text-align: left;">Dowertech 2013, 2014 no Mínimo</td>
+<td style="text-align: left;">fabricante <code>DOWERTECH</code> + ano 2014 + <code>LG</code> + mínimo + <strong>sem</strong> visita (4m)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>P3</strong> 🔍</td>
-<td style="text-align: left;"><strong>Condomínio Alto DS</strong></td>
-<td style="text-align: left;">Endereço marcado como <code>CONDOMINIO</code> que possui 5 ou mais UCs com status <code>DS</code> simultaneamente.</td>
+<td style="text-align: left;"><strong>P3</strong> 🔎</td>
+<td style="text-align: left;">Medidor Antigo no Mínimo</td>
+<td style="text-align: left;">ano &lt;= 2000 + <code>LG</code> + mínimo + <strong>sem</strong> visita (4m)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>P3</strong> 🔍</td>
-<td style="text-align: left;"><strong>Desligado Recente + Deficiência Técnica</strong></td>
-<td style="text-align: left;">Status <code>DS</code> nos últimos 6 meses + Já teve deficiência técnica em algum momento + Sem fiscalização/Bate-Caixa recente após o desligamento da UC.</td>
+<td style="text-align: left;"><strong>P3</strong> 🔎</td>
+<td style="text-align: left;">Desligado Recente + Fraude</td>
+<td style="text-align: left;"><code>DS</code> (6m) + fraude histórica + <strong>sem</strong> visita após move-out</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>P3</strong> 🔍</td>
-<td style="text-align: left;"><strong>Consumo no Mínimo</strong></td>
-<td style="text-align: left;">Status <code>LG</code> + Consumo no mínimo da fase + Sem fiscalização/Bate-Caixa recente (4 meses).</td>
+<td style="text-align: left;"><strong>P3</strong> 🔎</td>
+<td style="text-align: left;">Consumo no Mínimo</td>
+<td style="text-align: left;"><code>LG</code> + mínimo (4m) + <strong>sem</strong> visita (4m)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>P3</strong> 🔍</td>
-<td style="text-align: left;"><strong>Queda Acentuada</strong></td>
-<td style="text-align: left;">Status <code>LG</code> + Queda de média anual (YoY) ≥ 40% + Sem fiscalização/Bate-Caixa recente (6 meses).</td>
+<td style="text-align: left;"><strong>P3</strong> 🔎</td>
+<td style="text-align: left;">Queda Acentuada</td>
+<td style="text-align: left;"><code>LG</code> + YoY ≤ -40% + <strong>sem</strong> visita (6m)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>P3</strong> 🔎</td>
+<td style="text-align: left;">Condomínio com Alto DS</td>
+<td style="text-align: left;">condomínio com <strong>&gt;= 5 UCs</strong> em <code>DS</code> no mesmo endereço</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition info">
-<p class="admonition-title">O que é o Bate-Caixa nas regras?</p>
-<p>O <strong>Bate-Caixa</strong> agora é tratado com o mesmo peso de uma <strong>Fiscalização</strong>. Se a equipe passou na frente da casa e não encontrou nada, o sistema entende que aquele alvo não deve ser visitado novamente por um período de 4 a 6 meses, poupando tempo e combustível. ⛽💰</p>
+<p class="admonition-title">O que é o Bate-Caixa e Faro-Certo nas regras?</p>
+<p>O <strong>Bate-Caixa e Faro-Certo</strong> agora é tratado com o mesmo peso de uma <strong>Fiscalização</strong>. Se a equipe passou na frente da casa e não encontrou nada, o sistema entende que aquele alvo não deve ser visitado novamente por um período de 4 a 6 meses, poupando tempo e combustível. ⛽💰</p>
 </div>
 
 
