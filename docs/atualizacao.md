@@ -1,6 +1,15 @@
 ### 🧾 Atualizações recentes 
 Saiba tudo sobre as atualizações do projeto por período.
 
+### ✅ Ajuste 12 (07/02/26) — Ajusta o painel de priorização para aceitar filtro pelo mapa
+Para que as UCs possam ser **filtradas** pelo mapa, foi adicionado novas funções ao mapa.
+
+### ✅ Ajuste 11 (07/02/26) — Adição das prospecções realizadas pelos motoqueiros
+Para que o resultado dos **alertas-regras-sinais** sejam mais **assertivos**, consideramos as **prospecções dos motoqueiros**.
+
+### ✅ Ajuste 10 (07/02/26) — Adição do faro certo para a contabilização de visitas
+Para que o resultado dos **alertas-regras-sinais** sejam mais **assertivos**, consideramos as consultas realizadas pelo **faro_certo** como visitas nas UCs.
+
 ### ✅ Ajuste 9 (06/02/26) — Ajuste de colunas no relatório final
 Para que no painel de prioridades os filtro sejam **mais rápidos** removemos as colunas de **consumo e year over year**, tornando a base mais **leve**.
 

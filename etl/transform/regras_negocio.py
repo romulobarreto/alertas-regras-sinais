@@ -384,36 +384,17 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # ========== P3 (SINAIS) ==========
-    cond_p3_4 = (
+    cond_p3_1 = (
         (ano_medidor <= 2000)
         & (status == 'LG')
         & no_minimo
         & ~tem_esforco_recente(4)
         & out['PRIORIDADE'].isna()
     )
-    out.loc[cond_p3_4, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
+    out.loc[cond_p3_1, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P3',
         'P3-MEDIDOR ANTIGO NO MÍNIMO',
     ]
-
-    cond_col = (
-        out.get('CONDOMINIO', pd.Series('', index=out.index))
-        .fillna('')
-        .astype(str)
-        .str.upper()
-    )
-    if 'ENDERECO' in out.columns:
-        ds_por_endereco = out[status == 'DS'].groupby('ENDERECO').size()
-        enderecos_criticos = ds_por_endereco[ds_por_endereco >= 5].index
-        cond_p3_1 = (
-            (cond_col == 'SIM')
-            & out['ENDERECO'].isin(enderecos_criticos)
-            & out['PRIORIDADE'].isna()
-        )
-        out.loc[cond_p3_1, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
-            'P3',
-            'P3-CONDOMÍNIO COM ALTO ÍNDICE DE DS',
-        ]
 
     ds_recente = move_out >= (ref_date - timedelta(days=180))
     cond_p3_2 = (
@@ -449,5 +430,24 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P3',
         'P3-QUEDA ACENTUADA DE CONSUMO',
     ]
+
+    cond_col = (
+        out.get('CONDOMINIO', pd.Series('', index=out.index))
+        .fillna('')
+        .astype(str)
+        .str.upper()
+    )
+    if 'ENDERECO' in out.columns:
+        ds_por_endereco = out[status == 'DS'].groupby('ENDERECO').size()
+        enderecos_criticos = ds_por_endereco[ds_por_endereco >= 5].index
+        cond_p3_5 = (
+            (cond_col == 'SIM')
+            & out['ENDERECO'].isin(enderecos_criticos)
+            & out['PRIORIDADE'].isna()
+        )
+        out.loc[cond_p3_5, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
+            'P3',
+            'P3-CONDOMÍNIO COM ALTO ÍNDICE DE DS',
+        ]
 
     return out
