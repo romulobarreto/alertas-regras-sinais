@@ -275,6 +275,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     # ========== P1 (ALERTAS) ==========
+    # P1: Prospecção motoqueiro irregularidade confirmada
     no_esforco_any = (
         fisc_date.isna()
         & bate_caixa.isna()
@@ -304,6 +305,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         | (prospec_effort_date.notna() & (prospec_effort_date >= move_out))
     )
 
+    # P1-1: Desligado com reclamação
     cond_p1_1 = (
         (status == 'DS') & tem_move_out & nrt_apos_ds & ~esforco_apos_ds
     )
@@ -312,6 +314,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P1-DESLIGADO COM RECLAMAÇÃO',
     ]
 
+    # P1-2: Cliente no mínimo da fase com nota de reclamação
     cond_p1_2 = (
         (status == 'LG')
         & no_minimo
@@ -325,6 +328,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # ========== P2 (REGRAS) ==========
+    # P2: Prospecção motoqueiro com indício de irregularidade
     cond_prosp_p2 = (
         prospec_is_indicio & no_esforco_any & out['PRIORIDADE'].isna()
     )
@@ -333,6 +337,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P2-PROSPECCAO INDICIO DE IRREGULARIDADE',
     ]
 
+    # P2-1: Cliente reincidente com queda de consumo
     cond_p2_1 = (
         (status == 'LG')
         & has_fraude
@@ -345,6 +350,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P2-REINCIDENTE COM QUEDA DE CONSUMO',
     ]
 
+    # P2-2: UC no mínimo da fase com apontamento suspeito do leiturista
     cond_p2_2 = (
         (status == 'LG')
         & no_minimo
@@ -357,6 +363,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P2-MÍNIMO COM APONTAMENTO SUSPEITO',
     ]
 
+    # P2-3: Medidor dowertech 2013 no mínimo
     cond_p2_3 = (
         fabricante.str.contains('DOWERTECH', na=False)
         & (ano_medidor == 2013)
@@ -370,6 +377,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P2-MEDIDOR DOWERTECH 2013 NO MÍNIMO',
     ]
 
+    # P2-4: Medidor dowertech 2014 no mínimo
     cond_p2_4 = (
         fabricante.str.contains('DOWERTECH', na=False)
         & (ano_medidor == 2014)
@@ -384,6 +392,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # ========== P3 (SINAIS) ==========
+    # P3-1: Medidor antigo no mínimo da fase
     cond_p3_1 = (
         (ano_medidor <= 2000)
         & (status == 'LG')
@@ -396,6 +405,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P3-MEDIDOR ANTIGO NO MÍNIMO',
     ]
 
+    # P3-2: Desligado recente com histórico de fraude
     ds_recente = move_out >= (ref_date - timedelta(days=180))
     cond_p3_2 = (
         (status == 'DS')
@@ -409,6 +419,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P3-DESLIGADO RECENTE COM HISTÓRICO DE FRAUDE',
     ]
 
+    # P3-3: Consumo no mínimo da fase
     cond_p3_3 = (
         (status == 'LG')
         & no_minimo
@@ -420,9 +431,14 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P3-CONSUMO NO MÍNIMO DA FASE',
     ]
 
+    # P3-4: Queda acentuada, mas IGNORANDO microgeradores
+    # Garantimos que MICRO_GERADOR seja tratado como número (1 para sim, 0 para não)
+    is_micro = pd.to_numeric(out.get('MICRO_GERADOR', 0), errors='coerce').fillna(0) == 1
+
     cond_p3_4 = (
         (status == 'LG')
         & (media_yoy <= -0.4)
+        & (~is_micro)
         & ~tem_esforco_recente(6)
         & out['PRIORIDADE'].isna()
     )
@@ -431,6 +447,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P3-QUEDA ACENTUADA DE CONSUMO',
     ]
 
+    # P3-5: Condomínio com alto índice de DS
     cond_col = (
         out.get('CONDOMINIO', pd.Series('', index=out.index))
         .fillna('')

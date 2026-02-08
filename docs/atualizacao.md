@@ -1,6 +1,9 @@
 ### 🧾 Atualizações recentes 
 Saiba tudo sobre as atualizações do projeto por período.
 
+### ✅ Ajuste 13 (07/02/26) — Ajusta as regras de negócio do P3
+Para que os **sinais** possam ser mais **assertivos** alterados a regra de nogócio do **P3-Queda acentuada de consumo** para que **desconsidere** os clientes **micro-geradores**.
+
 ### ✅ Ajuste 12 (07/02/26) — Ajusta o painel de priorização para aceitar filtro pelo mapa
 Para que as UCs possam ser **filtradas** pelo mapa, foi adicionado novas funções ao mapa.
 
