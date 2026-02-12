@@ -52,16 +52,17 @@ Este projeto nasceu para **trocar aleatoriedade por evidência**.
 
 O pipeline espera estes arquivos dentro da pasta `input/` (nomes exatos):
 
-- `CADASTRO E CONSUMO POR UC.csv`
-- `CESTA BT.xlsx`
-- `MEDIDORES.xlsx`
-- `INSPECOES.xlsx`
-- `OCORRENCIA POR UC.csv`
-- `APONTAMENTO DE LEITURA.csv`
-- `CODIGOS DA LEITURA.xls`
-- `SINERGIA.csv`
-- `SECCIONAL.csv`
-- `LOCALIZACAO E TIPO CLIENTE.csv`
+   * `APONTAMENTO DE LEITURA.csv`
+   * `BOT_INTERACTIONS.sqlite`
+   * `CADASTRO E CONSUMO POR UC.csv`
+   * `CESTA BT.xlsx`
+   * `CODIGOS DA LEITURA.xls`
+   * `INSPECOES.xlsx`
+   * `LOCALIZACAO E TIPO CLIENTE.csv`
+   * `MEDIDORES.xlsx`
+   * `OCORRENCIA POR UC.csv`
+   * `SECCIONAL.csv`
+   * `SINERGIA.csv`
 
 ## 📦 Saída (output)
 

@@ -32,15 +32,18 @@ O sistema trabalha com uma estrutura de pastas rígida para garantir a organiza�
 
 1. Crie a pasta `input/` caso ela não exista.
 2. Insira as planilhas de dados brutos dentro da pasta `input/`. Os arquivos esperados são:
-   * `CADASTRO E CONSUMO POR UC.csv`
-   * `MEDIDORES.xlsx`
-   * `INSPECOES.xlsx`
-   * `OCORRENCIA POR UC.csv`
    * `APONTAMENTO DE LEITURA.csv`
+   * `BOT_INTERACTIONS.sqlite`
+   * `CADASTRO E CONSUMO POR UC.csv`
+   * `CESTA BT.xlsx`
    * `CODIGOS DA LEITURA.xls`
-   * `SINERGIA.csv` (Dados do Bate-Caixa)
-   * `SECCIONAL.csv`
+   * `INSPECOES.xlsx`
    * `LOCALIZACAO E TIPO CLIENTE.csv`
+   * `MEDIDORES.xlsx`
+   * `OCORRENCIA POR UC.csv`
+   * `SECCIONAL.csv`
+   * `SINERGIA.csv`
+   
 
 ### 4. Execução do Pipeline 🚀
 Para facilitar o dia a dia, utilizamos o **taskipy**. Você não precisa decorar comandos longos, basta rodar:

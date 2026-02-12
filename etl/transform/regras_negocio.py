@@ -447,24 +447,53 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P3-QUEDA ACENTUADA DE CONSUMO',
     ]
 
-    # P3-5: Condomínio com alto índice de DS
+    # P3-5: Condomínio com alto índice de DS (agrupa por LOGRADOURO + NUMERO)
     cond_col = (
         out.get('CONDOMINIO', pd.Series('', index=out.index))
         .fillna('')
         .astype(str)
         .str.upper()
+        .str.strip()
     )
-    if 'ENDERECO' in out.columns:
-        ds_por_endereco = out[status == 'DS'].groupby('ENDERECO').size()
-        enderecos_criticos = ds_por_endereco[ds_por_endereco >= 5].index
+
+    if {'LOGRADOURO', 'NUMERO'}.issubset(out.columns):
+        # Normaliza logradouro e número
+        log = (
+            out.get('LOGRADOURO', pd.Series('', index=out.index))
+            .fillna('')
+            .astype(str)
+            .str.upper()
+            .str.strip()
+        )
+        num = (
+            out.get('NUMERO', pd.Series('', index=out.index))
+            .fillna('')
+            .astype(str)
+            .str.upper()
+            .str.strip()
+        )
+
+        out['_BUILD_KEY'] = log + '|' + num
+
+        # Conta apenas UCs DS por prédio
+        ds_build_counts = out.loc[status == 'DS'].groupby('_BUILD_KEY').size()
+
+        # Prédios críticos com >= 5 DS
+        crit_builds = ds_build_counts[ds_build_counts >= 5].index
+
+        # Marca somente as UCs que são DS, condomínio, no prédio crítico e sem prioridade já definida
         cond_p3_5 = (
             (cond_col == 'SIM')
-            & out['ENDERECO'].isin(enderecos_criticos)
+            & (status == 'DS')
+            & out['_BUILD_KEY'].isin(crit_builds)
             & out['PRIORIDADE'].isna()
         )
+
         out.loc[cond_p3_5, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
             'P3',
             'P3-CONDOMÍNIO COM ALTO ÍNDICE DE DS',
         ]
+
+        out.drop(columns=['_BUILD_KEY'], inplace=True)
 
     return out

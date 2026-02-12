@@ -1,6 +1,9 @@
 ### 🧾 Atualizações recentes 
 Saiba tudo sobre as atualizações do projeto por período.
 
+### ✅ Ajuste 14 (12/02/26) — Ajusta as regras de negócio do P3 de condomínios
+Sinais para dias de **chuva** não estavam funcionando por **erro de lógica**. Script alterado para verificar **endereço e número do imóvel de forma individual**, dessa forma, conseguindo encontrar endereços iguais e **encontrando condomínios com alto índice de DS**.
+
 ### ✅ Ajuste 13 (07/02/26) — Ajusta as regras de negócio do P3
 Para que os **sinais** possam ser mais **assertivos** alterados a regra de nogócio do **P3-Queda acentuada de consumo** para que **desconsidere** os clientes **micro-geradores**.
 
