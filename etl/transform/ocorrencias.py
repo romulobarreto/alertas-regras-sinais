@@ -11,7 +11,7 @@ def enrich_with_occurrences(
 
     # Renomeia se os nomes originais forem diferentes
     occ = occ.rename(
-        columns={'CR_NUMERO': 'UC', 'OCO_DATA_NR': 'NOTA DE RECLAMACAO'}
+        columns={'CR_NUMERO': 'UC', 'DT_OCO_INCLUSAO': 'NOTA DE RECLAMACAO'}
     )
 
     # Garante que UC seja string limpa (sem .0 e sem espaços)
