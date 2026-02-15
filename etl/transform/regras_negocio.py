@@ -433,7 +433,10 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
 
     # P3-4: Queda acentuada, mas IGNORANDO microgeradores
     # Garantimos que MICRO_GERADOR seja tratado como número (1 para sim, 0 para não)
-    is_micro = pd.to_numeric(out.get('MICRO_GERADOR', 0), errors='coerce').fillna(0) == 1
+    is_micro = (
+        pd.to_numeric(out.get('MICRO_GERADOR', 0), errors='coerce').fillna(0)
+        == 1
+    )
 
     cond_p3_4 = (
         (status == 'LG')

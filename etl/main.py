@@ -2,6 +2,7 @@
 
 import logging
 import re
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
@@ -171,6 +172,42 @@ def run_pipeline() -> None:
         df = df[colunas_existentes]
 
         pbar.update(1)
+
+        # --> Ordenação final: Município A-Z, Bairro A-Z, Endereço A-Z
+        _sort_keys = ['MUNICIPIO', 'BAIRRO', 'ENDERECO']
+        present_sort_keys = [k for k in _sort_keys if k in df.columns]
+
+        if present_sort_keys:
+            # cria colunas temporárias normalizadas (remove acento, uppercase, strip)
+            tmp_cols = []
+            for k in present_sort_keys:
+                tmp = f'_SORT_{k}'
+                tmp_cols.append(tmp)
+                df[tmp] = (
+                    df[k]
+                    .fillna('')
+                    .astype(str)
+                    .str.strip()
+                    .apply(lambda x: unicodedata.normalize('NFKD', x))
+                    .apply(
+                        lambda x: ''.join(
+                            ch for ch in x if not unicodedata.combining(ch)
+                        )
+                    )
+                    .str.upper()
+                )
+
+            # ordena pelos campos temporários
+            df = df.sort_values(
+                by=tmp_cols, ascending=True, na_position='last'
+            ).reset_index(drop=True)
+
+            # remove colunas temporárias
+            df.drop(columns=tmp_cols, inplace=True)
+        else:
+            logging.info(
+                'Nenhuma das colunas de ordenação (MUNICIPIO/BAIRRO/ENDERECO) encontrada para ordenar.'
+            )
 
         # 3. CARGA
         logging.info('Etapa 3: Exportando para CSV...')
