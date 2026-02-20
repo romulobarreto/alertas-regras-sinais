@@ -21,5 +21,5 @@ Nossa inteligência separa o "joio do trigo". Abaixo, a lógica técnica que o P
 
 **Alvos que já estão abertos por outras áreas** são removidos do conjunto de priorização, evitando retrabalho e duplicidade de atuação.
 
-!!! info "O que é o Bate-Caixa e Faro-Certo nas regras?"
-    O **Bate-Caixa e Faro-Certo** agora é tratado com o mesmo peso de uma **Fiscalização**. Se a equipe passou na frente da casa e não encontrou nada, o sistema entende que aquele alvo não deve ser visitado novamente por um período de 4 a 6 meses, poupando tempo e combustível. ⛽💰
+!!! info "O que é o **sem visita** nas regras?"
+    O **sem visita** nada mais é do que o **Bate-Caixa, Faro-Certo e Inspeção**, todos tratados com **o mesmo peso**. Se a equipe passou na frente da casa e solicitou consumo mas não encontrou nada, o sistema entende que aquele alvo não deve ser visitado novamente por um período de 4 a 6 meses, poupando tempo e combustível. ⛽💰
