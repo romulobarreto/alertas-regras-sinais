@@ -1,0 +1,44 @@
+:root > * {
+  /* Cor do cabeçalho e abas */
+  --md-primary-fg-color: #0A4780;
+  --md-primary-fg-color--light: #0A4780;
+  --md-primary-fg-color--dark: #0A4780;
+  
+  /* Cor de acentuação (links, botões) */
+  --md-accent-fg-color: #6763AC;
+}
+
+/* Garante que o fundo do header mude mesmo */
+.md-header {
+  background-color: #0A4780 !important;
+}
+
+.md-tabs {
+  background-color: #0A4780 !important;
+}
+
+/* Estilo para a logo na Home */
+img[src*="logo.png"] {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+}
+
+/* Ajuste do cabeçalho para um visual mais limpo */
+.md-header {
+    border-bottom: 4px solid #FFB81C; /* Amarelo da Equatorial para dar um detalhe */
+}
+
+/* Ajusta a logo pequena do cabeçalho para não ter fundo branco */
+.md-header__button.md-logo img {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    height: 2rem; /* Ajusta o tamanho para caber no header */
+    width: auto;
+}
+
+/* Se preferir esconder a logo do topo e deixar só o título */
+/* .md-header__button.md-logo { display: none; } */
