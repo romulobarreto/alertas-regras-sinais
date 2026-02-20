@@ -391,6 +391,20 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         'P2-MEDIDOR DOWERTECH 2014 NO MÍNIMO',
     ]
 
+    # P2-5: Medidor dowertech 2015 no mínimo
+    cond_p2_4 = (
+        fabricante.str.contains('DOWERTECH', na=False)
+        & (ano_medidor == 2015)
+        & (status == 'LG')
+        & no_minimo
+        & ~tem_esforco_recente(4)
+        & out['PRIORIDADE'].isna()
+    )
+    out.loc[cond_p2_4, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
+        'P2',
+        'P2-MEDIDOR DOWERTECH 2015 NO MÍNIMO',
+    ]
+
     # ========== P3 (SINAIS) ==========
     # P3-1: Medidor antigo no mínimo da fase
     cond_p3_1 = (
@@ -460,31 +474,25 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     if {'LOGRADOURO', 'NUMERO'}.issubset(out.columns):
-        # Normaliza logradouro e número
-        log = (
-            out.get('LOGRADOURO', pd.Series('', index=out.index))
-            .fillna('')
-            .astype(str)
-            .str.upper()
-            .str.strip()
-        )
-        num = (
-            out.get('NUMERO', pd.Series('', index=out.index))
-            .fillna('')
-            .astype(str)
-            .str.upper()
-            .str.strip()
-        )
-
+        # Normaliza logradouro e número para criar a chave do prédio
+        log = out['LOGRADOURO'].fillna('').astype(str).str.upper().str.strip()
+        num = out['NUMERO'].fillna('').astype(str).str.upper().str.strip()
         out['_BUILD_KEY'] = log + '|' + num
 
-        # Conta apenas UCs DS por prédio
+        # 1. Identifica prédios que tiveram QUALQUER esforço nos últimos 6 meses
+        # (Seja inspeção ou bate caixa em qualquer UC do prédio)
+        predios_com_esforco = out.loc[tem_esforco_recente(6), '_BUILD_KEY'].unique()
+
+        # 2. Conta UCs com STATUS 'DS' por prédio
         ds_build_counts = out.loc[status == 'DS'].groupby('_BUILD_KEY').size()
 
-        # Prédios críticos com >= 5 DS
-        crit_builds = ds_build_counts[ds_build_counts >= 5].index
+        # 3. Define prédios críticos: >= 5 DS E que NÃO tiveram esforço recente
+        crit_builds = ds_build_counts[
+            (ds_build_counts >= 5) & 
+            (~ds_build_counts.index.isin(predios_com_esforco))
+        ].index
 
-        # Marca somente as UCs que são DS, condomínio, no prédio crítico e sem prioridade já definida
+        # 4. Marca como P3 apenas as UCs DS, que são condomínio, no prédio crítico e sem prioridade
         cond_p3_5 = (
             (cond_col == 'SIM')
             & (status == 'DS')
@@ -497,6 +505,8 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
             'P3-CONDOMÍNIO COM ALTO ÍNDICE DE DS',
         ]
 
+        # Limpa a coluna temporária de chave do prédio
         out.drop(columns=['_BUILD_KEY'], inplace=True)
 
+    # Retorno final da função apply_priority_rules
     return out

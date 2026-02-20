@@ -1,6 +1,12 @@
 ### 🧾 Atualizações recentes 
 Saiba tudo sobre as atualizações do projeto por período.
 
+### ✅ Ajuste 16 (20/02/26) — Regra do P2 de medidor dowertech 2015 no mínimo da fase
+Para um P2 mais **assertivo** adicionamos a regra do **medidor dowertech 2015 no mínimo da fase** para  **sinal P2**.
+
+### ✅ Ajuste 15 (20/02/26) — Ajusta as regras de negócio do P3 de condomínios
+Sinais para dias de **chuva** não estavam sendo assertivos por **erro de lógica**. Script alterado para verificar **condomínimos sem visitas no últimos 6 meses**, dessa forma, **encontrando condomínios com alto índice de DS que ainda não foram visitados**.
+
 ### ✅ Ajuste 14 (12/02/26) — Ajusta as regras de negócio do P3 de condomínios
 Sinais para dias de **chuva** não estavam funcionando por **erro de lógica**. Script alterado para verificar **endereço e número do imóvel de forma individual**, dessa forma, conseguindo encontrar endereços iguais e **encontrando condomínios com alto índice de DS**.
 
@@ -25,7 +31,7 @@ Para que no painel de prioridades o filtro **Motivo Prioridade** contenha o tipo
 ### ✅ Ajuste 7 (06/02/26) — Ajuste de filtro do Motivo Prioridade
 No painel de prioridades o filtro **Motivo Prioridade** não estava aceitando **nenhum filtro**.
 
-### ✅ Ajuste 6 (05/02/26) — Regra do P2 de medidor dowertech 2013 no mínimo da fase
+### ✅ Ajuste 6 (05/02/26) — Regra do P2 de medidor dowertech 2014 no mínimo da fase
 Para um P2 mais **assertivo** adicionamos a regra do **medidor dowertech 2014 no mínimo da fase** para  **sinal P2**.
 
 ### ✅ Ajuste 5 (05/02/26) — Regra do P2 de medidor antigo no mínimo da fase
