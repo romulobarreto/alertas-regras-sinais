@@ -23,3 +23,23 @@ Nossa inteligência separa o "joio do trigo". Abaixo, a lógica técnica que o P
 
 !!! info "O que é o **sem visita** nas regras?"
     O **sem visita** nada mais é do que o **Bate-Caixa, Faro-Certo e Inspeção**, todos tratados com **o mesmo peso**. Se a equipe passou na frente da casa e solicitou consumo mas não encontrou nada, o sistema entende que aquele alvo não deve ser visitado novamente por um período de 4 a 6 meses, poupando tempo e combustível. ⛽💰
+
+!!! info "O que é o **apontamento suspeito** nas regras?"
+    O **apontamento suspeito** nada mais é do que o apontamento realizado pelo leiturista no momento da visita na UC, nem sempre a leitura é coletada normalmente (**LEITURA NORMAL**). 
+    
+    📝 **Os apontamentos suspeitos são:**
+    'VESTIGIO DE IRREGULARIDADE',
+    'VESTIGIO DE LIGACAO IRREGULAR',
+    'PROB DISPLAY MEDIDOR ELETRONICO',
+    'MEDIDOR COM VIDRO QUEBRADO',
+    'MEDIDOR PARADO DESCONTROLADO OU EMBACADO',
+    'MEDIDOR GIRANDO AO CONTRARIO',
+    'MEDIDOR NAO LOCALIZADO',
+    'MEDIDOR RETIRADO DA CAIXA DE MEDICAO',
+    'NUMERO DO MEDIDOR NAO CONFERE',
+    'MEDIDOR COM VIDRO EMBACADO (NAO PERMITE LEITURA)',
+    'MEDIDOR DESENERGIZADO (NAO EXIBE LEITURA)',
+    'IMPEDIMENTO DE LEITURA POR SINISTRO',
+    'EQUIPAMENTO COM PERDA DE PARAMETRO',
+    'ERRO DE CADASTRO',
+    'TROCA DE EQUIPAMENTO POR ENCHENTE'.
