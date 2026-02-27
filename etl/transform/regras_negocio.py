@@ -230,6 +230,15 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     move_out = pd.to_datetime(
         out.get('MOVE_OUT', pd.Series(index=out.index)), errors='coerce'
     )
+    move_in = pd.to_datetime(
+        out.get('MOVE_IN', pd.Series(index=out.index)), errors='coerce'
+    )
+
+    # Filtra UCs com MOVE_IN há pelo menos 4 meses (evita falso positivo no mínimo)
+    move_in_ok = move_in.notna() & (
+        move_in <= (ref_date - timedelta(days=4 * 30))
+    )
+
     has_nrt = out.get('HAS_NRT', pd.Series(False, index=out.index))
     has_fraude = _has_fraude_historica(
         out.get('COD', pd.Series(index=out.index))
@@ -318,6 +327,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     cond_p1_2 = (
         (status == 'LG')
         & no_minimo
+        & move_in_ok
         & has_nrt
         & ~tem_esforco_recente(4)
         & out['PRIORIDADE'].isna()
@@ -354,6 +364,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     cond_p2_2 = (
         (status == 'LG')
         & no_minimo
+        & move_in_ok
         & has_apontamento
         & ~tem_esforco_recente(4)
         & out['PRIORIDADE'].isna()
@@ -369,6 +380,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         & (ano_medidor == 2013)
         & (status == 'LG')
         & no_minimo
+        & move_in_ok
         & ~tem_esforco_recente(4)
         & out['PRIORIDADE'].isna()
     )
@@ -383,6 +395,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
         & (ano_medidor == 2014)
         & (status == 'LG')
         & no_minimo
+        & move_in_ok
         & ~tem_esforco_recente(4)
         & out['PRIORIDADE'].isna()
     )
@@ -392,15 +405,16 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # P2-5: Medidor dowertech 2015 no mínimo
-    cond_p2_4 = (
+    cond_p2_5 = (
         fabricante.str.contains('DOWERTECH', na=False)
         & (ano_medidor == 2015)
         & (status == 'LG')
         & no_minimo
+        & move_in_ok
         & ~tem_esforco_recente(4)
         & out['PRIORIDADE'].isna()
     )
-    out.loc[cond_p2_4, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
+    out.loc[cond_p2_5, ['PRIORIDADE', 'MOTIVO_PRIORIDADE']] = [
         'P2',
         'P2-MEDIDOR DOWERTECH 2015 NO MÍNIMO',
     ]
@@ -408,9 +422,11 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     # ========== P3 (SINAIS) ==========
     # P3-1: Medidor antigo no mínimo da fase
     cond_p3_1 = (
-        (ano_medidor <= 2000)
+        (ano_medidor >= 1900)
+        & (ano_medidor <= 2000)
         & (status == 'LG')
         & no_minimo
+        & move_in_ok
         & ~tem_esforco_recente(4)
         & out['PRIORIDADE'].isna()
     )
@@ -437,6 +453,7 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
     cond_p3_3 = (
         (status == 'LG')
         & no_minimo
+        & move_in_ok
         & ~tem_esforco_recente(4)
         & out['PRIORIDADE'].isna()
     )
@@ -481,15 +498,17 @@ def apply_priority_rules(df: pd.DataFrame) -> pd.DataFrame:
 
         # 1. Identifica prédios que tiveram QUALQUER esforço nos últimos 6 meses
         # (Seja inspeção ou bate caixa em qualquer UC do prédio)
-        predios_com_esforco = out.loc[tem_esforco_recente(6), '_BUILD_KEY'].unique()
+        predios_com_esforco = out.loc[
+            tem_esforco_recente(6), '_BUILD_KEY'
+        ].unique()
 
         # 2. Conta UCs com STATUS 'DS' por prédio
         ds_build_counts = out.loc[status == 'DS'].groupby('_BUILD_KEY').size()
 
         # 3. Define prédios críticos: >= 5 DS E que NÃO tiveram esforço recente
         crit_builds = ds_build_counts[
-            (ds_build_counts >= 5) & 
-            (~ds_build_counts.index.isin(predios_com_esforco))
+            (ds_build_counts >= 5)
+            & (~ds_build_counts.index.isin(predios_com_esforco))
         ].index
 
         # 4. Marca como P3 apenas as UCs DS, que são condomínio, no prédio crítico e sem prioridade

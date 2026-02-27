@@ -40,6 +40,7 @@ def treat_monthly_consumption(df: pd.DataFrame) -> pd.DataFrame:
             .replace(0, pd.NA)
             .mean(axis=1, skipna=True)
             .round(2)
+            .apply(lambda x: f'{x:.2f}'.replace('.', ',') if pd.notna(x) else '')
         )
     else:
         df_copy['CONSUMO_MEDIO'] = pd.NA
