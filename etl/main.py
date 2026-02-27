@@ -160,6 +160,7 @@ def run_pipeline() -> None:
             'COD',
             'NOTA DE RECLAMACAO',
             'LEITURISTA',
+            'CONSUMO_MEDIO',
             'MEDIA_YOY',
             'NO_MINIMO_4M',
             'PRIORIDADE',
