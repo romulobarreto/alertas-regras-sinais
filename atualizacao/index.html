@@ -589,6 +589,72 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ajuste-19-270226-ajuste-na-regra-do-minimo-da-fase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Ajuste 19 (27/02/26) — Ajuste na regra do mínimo da fase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ajuste-18-270226-ajuste-na-regra-p3-medidor-antigo-no-minimo-da-fase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Ajuste 18 (27/02/26) — Ajuste na regra P3-Medidor antigo no mínimo da fase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ajuste-17-270226-coluna-de-consumo-medio-por-uc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Ajuste 17 (27/02/26) — Coluna de consumo médio por UC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ajuste-16-200226-regra-do-p2-de-medidor-dowertech-2015-no-minimo-da-fase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Ajuste 16 (20/02/26) — Regra do P2 de medidor dowertech 2015 no mínimo da fase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ajuste-15-200226-ajusta-as-regras-de-negocio-do-p3-de-condominios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Ajuste 15 (20/02/26) — Ajusta as regras de negócio do P3 de condomínios
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ajuste-14-120226-ajusta-as-regras-de-negocio-do-p3-de-condominios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Ajuste 14 (12/02/26) — Ajusta as regras de negócio do P3 de condomínios
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ajuste-13-070226-ajusta-as-regras-de-negocio-do-p3" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -666,10 +732,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ajuste-6-050226-regra-do-p2-de-medidor-dowertech-2013-no-minimo-da-fase" class="md-nav__link">
+  <a href="#ajuste-6-050226-regra-do-p2-de-medidor-dowertech-2014-no-minimo-da-fase" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✅ Ajuste 6 (05/02/26) — Regra do P2 de medidor dowertech 2013 no mínimo da fase
+        ✅ Ajuste 6 (05/02/26) — Regra do P2 de medidor dowertech 2014 no mínimo da fase
       
     </span>
   </a>
@@ -774,35 +840,66 @@
 
 <h3 id="atualizacoes-recentes">🧾 Atualizações recentes</h3>
 <p>Saiba tudo sobre as atualizações do projeto por período.</p>
+<h3 id="ajuste-19-270226-ajuste-na-regra-do-minimo-da-fase">✅ Ajuste 19 (27/02/26) — Ajuste na regra do mínimo da fase</h3>
+<p>Na análise da regra dos alvos que usam <strong>mínimo da fase</strong> como parâmetro, o período de início de moradia <strong>MOVE-IN</strong>, não estava sendo levado em consideração, gerando mínimos da fase imprecisos. Regra foi atualizada para que o mínimo da fase seja considerado apenas se a UC está ativa no <strong>mínimo há 4 meses</strong>, que é o período considerado para mínimo da fase.</p>
+<hr />
+<h3 id="ajuste-18-270226-ajuste-na-regra-p3-medidor-antigo-no-minimo-da-fase">✅ Ajuste 18 (27/02/26) — Ajuste na regra P3-Medidor antigo no mínimo da fase</h3>
+<p>Na análise da regra do alvo <strong>P3-Medidor antigo no mínimo da fase</strong> estavam sendo considerados como parâmetros válidos, anos de medidores zerados ou nulos como válidos para inferiores a 2000. Essa regra foi ajustada, delimitando a regra para <strong>ano do medidor &gt;= 1900 e ano do medidor &lt;= 2000</strong></p>
+<hr />
+<h3 id="ajuste-17-270226-coluna-de-consumo-medio-por-uc">✅ Ajuste 17 (27/02/26) — Coluna de consumo médio por UC</h3>
+<p>No resultado final do export, foi adiciona a coluna de <strong>consumo médio por uc</strong>.</p>
+<hr />
+<h3 id="ajuste-16-200226-regra-do-p2-de-medidor-dowertech-2015-no-minimo-da-fase">✅ Ajuste 16 (20/02/26) — Regra do P2 de medidor dowertech 2015 no mínimo da fase</h3>
+<p>Para um P2 mais <strong>assertivo</strong> adicionamos a regra do <strong>medidor dowertech 2015 no mínimo da fase</strong> para  <strong>sinal P2</strong>.</p>
+<hr />
+<h3 id="ajuste-15-200226-ajusta-as-regras-de-negocio-do-p3-de-condominios">✅ Ajuste 15 (20/02/26) — Ajusta as regras de negócio do P3 de condomínios</h3>
+<p>Sinais para dias de <strong>chuva</strong> não estavam sendo assertivos por <strong>erro de lógica</strong>. Script alterado para verificar <strong>condomínimos sem visitas no últimos 6 meses</strong>, dessa forma, <strong>encontrando condomínios com alto índice de DS que ainda não foram visitados</strong>.</p>
+<hr />
+<h3 id="ajuste-14-120226-ajusta-as-regras-de-negocio-do-p3-de-condominios">✅ Ajuste 14 (12/02/26) — Ajusta as regras de negócio do P3 de condomínios</h3>
+<p>Sinais para dias de <strong>chuva</strong> não estavam funcionando por <strong>erro de lógica</strong>. Script alterado para verificar <strong>endereço e número do imóvel de forma individual</strong>, dessa forma, conseguindo encontrar endereços iguais e <strong>encontrando condomínios com alto índice de DS</strong>.</p>
+<hr />
 <h3 id="ajuste-13-070226-ajusta-as-regras-de-negocio-do-p3">✅ Ajuste 13 (07/02/26) — Ajusta as regras de negócio do P3</h3>
 <p>Para que os <strong>sinais</strong> possam ser mais <strong>assertivos</strong> alterados a regra de nogócio do <strong>P3-Queda acentuada de consumo</strong> para que <strong>desconsidere</strong> os clientes <strong>micro-geradores</strong>.</p>
+<hr />
 <h3 id="ajuste-12-070226-ajusta-o-painel-de-priorizacao-para-aceitar-filtro-pelo-mapa">✅ Ajuste 12 (07/02/26) — Ajusta o painel de priorização para aceitar filtro pelo mapa</h3>
 <p>Para que as UCs possam ser <strong>filtradas</strong> pelo mapa, foi adicionado novas funções ao mapa.</p>
+<hr />
 <h3 id="ajuste-11-070226-adicao-das-prospeccoes-realizadas-pelos-motoqueiros">✅ Ajuste 11 (07/02/26) — Adição das prospecções realizadas pelos motoqueiros</h3>
 <p>Para que o resultado dos <strong>alertas-regras-sinais</strong> sejam mais <strong>assertivos</strong>, consideramos as <strong>prospecções dos motoqueiros</strong>.</p>
+<hr />
 <h3 id="ajuste-10-070226-adicao-do-faro-certo-para-a-contabilizacao-de-visitas">✅ Ajuste 10 (07/02/26) — Adição do faro certo para a contabilização de visitas</h3>
 <p>Para que o resultado dos <strong>alertas-regras-sinais</strong> sejam mais <strong>assertivos</strong>, consideramos as consultas realizadas pelo <strong>faro_certo</strong> como visitas nas UCs.</p>
+<hr />
 <h3 id="ajuste-9-060226-ajuste-de-colunas-no-relatorio-final">✅ Ajuste 9 (06/02/26) — Ajuste de colunas no relatório final</h3>
 <p>Para que no painel de prioridades os filtro sejam <strong>mais rápidos</strong> removemos as colunas de <strong>consumo e year over year</strong>, tornando a base mais <strong>leve</strong>.</p>
+<hr />
 <h3 id="ajuste-8-060226-ajuste-de-nome-dos-motivo-prioridade">✅ Ajuste 8 (06/02/26) — Ajuste de nome dos Motivo Prioridade</h3>
 <p>Para que no painel de prioridades o filtro <strong>Motivo Prioridade</strong> contenha o tipo de prioridade o nome de cada motivo recebeu <strong>P1 - P2 - P3</strong> no prefixo.</p>
+<hr />
 <h3 id="ajuste-7-060226-ajuste-de-filtro-do-motivo-prioridade">✅ Ajuste 7 (06/02/26) — Ajuste de filtro do Motivo Prioridade</h3>
 <p>No painel de prioridades o filtro <strong>Motivo Prioridade</strong> não estava aceitando <strong>nenhum filtro</strong>.</p>
-<h3 id="ajuste-6-050226-regra-do-p2-de-medidor-dowertech-2013-no-minimo-da-fase">✅ Ajuste 6 (05/02/26) — Regra do P2 de medidor dowertech 2013 no mínimo da fase</h3>
+<hr />
+<h3 id="ajuste-6-050226-regra-do-p2-de-medidor-dowertech-2014-no-minimo-da-fase">✅ Ajuste 6 (05/02/26) — Regra do P2 de medidor dowertech 2014 no mínimo da fase</h3>
 <p>Para um P2 mais <strong>assertivo</strong> adicionamos a regra do <strong>medidor dowertech 2014 no mínimo da fase</strong> para  <strong>sinal P2</strong>.</p>
+<hr />
 <h3 id="ajuste-5-050226-regra-do-p2-de-medidor-antigo-no-minimo-da-fase">✅ Ajuste 5 (05/02/26) — Regra do P2 de medidor antigo no mínimo da fase</h3>
 <p>Para um P2 mais <strong>assertivo</strong> passamos o P2 de <strong>medidor antigo no mínimo da fase</strong> para  <strong>sinal P3</strong>.</p>
+<hr />
 <h3 id="ajuste-4-040226-ajuste-do-link-do-painel-de-priorizacao">✅ Ajuste 4 (04/02/26) — Ajuste do link do painel de priorização</h3>
 <p>Para um <strong>link</strong> mais <strong>profissional</strong> a url do site foi alterada. </p>
+<hr />
 <h3 id="ajuste-3-020226-deploy-do-streamlit-para-visualizacao-dos-dados">✅ Ajuste 3 (02/02/26) — Deploy do streamlit para visualização dos dados</h3>
 <p>Para <strong>melhor visualização</strong> dos alvos encontrados, foi feito o <strong>painel de prioridades</strong> com streamlit.</p>
 <p>🌐 Acesse: 
 <a href="https://painel-priorizacao.streamlit.app/">Painel de Priorização (Streamlit)</a> </p>
+<hr />
 <h3 id="ajuste-2-020226-regra-do-p1-ds-com-corte-por-move_out">✅ Ajuste 2 (02/02/26) — Regra do P1 DS com corte por MOVE_OUT</h3>
 <p>Para o alvo <strong>P1 DS</strong>, a <strong>nota de reclamação</strong> só é considerada quando ocorrer em data <strong>maior ou igual</strong> ao período de <strong>MOVE_OUT</strong>.<br />
 Isso evita “puxar” reclamações antigas que não representam o contexto atual após a troca/mudança.</p>
+<hr />
 <h3 id="ajuste-1-020226-desconsiderar-alvos-ja-abertos">✅ Ajuste 1 (02/02/26) — Desconsiderar alvos já abertos</h3>
 <p>Agora, <strong>alvos que já estão abertos por outras áreas</strong> são removidos do conjunto de priorização, evitando retrabalho e duplicidade de atuação.</p>
+<hr />
 <h3 id="deploy-310126-deploy-do-etl-sem-visualizacao">✅ Deploy (31/01/26) — Deploy do ETL sem visualização</h3>
 <p><strong>De +-5horas para 40 segundos.</strong> ETL completo da geração de alertas, regras e sinais da regional sul.</p>
 

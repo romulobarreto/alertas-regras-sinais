@@ -598,7 +598,7 @@
 <tr>
 <td style="text-align: left;"><strong>P1</strong> 🚨</td>
 <td style="text-align: left;">Mínimo da Fase com Reclamação</td>
-<td style="text-align: left;"><code>LG</code> + mínimo (4m) + reclamação + <strong>sem</strong> visita (4m)</td>
+<td style="text-align: left;"><code>LG</code> + mínimo (4m) + nota de reclamação + <strong>sem</strong> visita (4m)</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>P2</strong> ⚠️</td>
@@ -608,17 +608,17 @@
 <tr>
 <td style="text-align: left;"><strong>P2</strong> ⚠️</td>
 <td style="text-align: left;">Reincidente com Queda</td>
-<td style="text-align: left;"><code>LG</code> + fraude histórica + YoY &lt;= -40% + <strong>sem</strong> visita (6m)</td>
+<td style="text-align: left;"><code>LG</code> + histórico de irregularidade + YoY &lt;= -40% + <strong>sem</strong> visita (6m)</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>P2</strong> ⚠️</td>
 <td style="text-align: left;">Mínimo com Apontamento Suspeito</td>
-<td style="text-align: left;"><code>LG</code> + mínimo + apontamento relevante + <strong>sem</strong> visita (4m)</td>
+<td style="text-align: left;"><code>LG</code> + mínimo + apontamento relevante do leiturista + <strong>sem</strong> visita (4m)</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>P2</strong> ⚠️</td>
-<td style="text-align: left;">Dowertech 2013, 2014 no Mínimo</td>
-<td style="text-align: left;">fabricante <code>DOWERTECH</code> + ano 2014 + <code>LG</code> + mínimo + <strong>sem</strong> visita (4m)</td>
+<td style="text-align: left;">Dowertech 2013 - 2015 no Mínimo</td>
+<td style="text-align: left;">fabricante <code>DOWERTECH</code> + ano 2013 - 2015 + <code>LG</code> + mínimo + <strong>sem</strong> visita (4m)</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>P3</strong> 🔎</td>
@@ -628,7 +628,7 @@
 <tr>
 <td style="text-align: left;"><strong>P3</strong> 🔎</td>
 <td style="text-align: left;">Desligado Recente + Irregularidade</td>
-<td style="text-align: left;"><code>DS</code> (6m) + irregularidade histórica + <strong>sem</strong> visita após desligamento da UC</td>
+<td style="text-align: left;"><code>DS</code> (6m) + histórico de irregularidade + <strong>sem</strong> visita após desligamento da UC</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>P3</strong> 🔎</td>
@@ -638,18 +638,40 @@
 <tr>
 <td style="text-align: left;"><strong>P3</strong> 🔎</td>
 <td style="text-align: left;">Queda Acentuada</td>
-<td style="text-align: left;"><code>LG</code> + YoY &lt;= -40% + Cliente convencional + <strong>sem</strong> visita (6m)</td>
+<td style="text-align: left;"><code>LG</code> + YoY &lt;= -40% + cliente convencional + <strong>sem</strong> visita (6m)</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>P3</strong> 🔎</td>
 <td style="text-align: left;">Condomínio com Alto DS</td>
-<td style="text-align: left;">condomínio com <strong>&gt;= 5 UCs</strong> em <code>DS</code> no mesmo endereço</td>
+<td style="text-align: left;">condomínio com <strong>&gt;= 5 UCs</strong> em <code>DS</code> + <strong>sem</strong> visita (6m)</td>
 </tr>
 </tbody>
 </table>
+<p><code>Desconsiderar alvos já abertos</code></p>
+<p><strong>Alvos que já estão abertos por outras áreas</strong> são removidos do conjunto de priorização, evitando retrabalho e duplicidade de atuação.</p>
 <div class="admonition info">
-<p class="admonition-title">O que é o Bate-Caixa e Faro-Certo nas regras?</p>
-<p>O <strong>Bate-Caixa e Faro-Certo</strong> agora é tratado com o mesmo peso de uma <strong>Fiscalização</strong>. Se a equipe passou na frente da casa e não encontrou nada, o sistema entende que aquele alvo não deve ser visitado novamente por um período de 4 a 6 meses, poupando tempo e combustível. ⛽💰</p>
+<p class="admonition-title">O que é o <strong>sem visita</strong> nas regras?</p>
+<p>O <strong>sem visita</strong> nada mais é do que o <strong>Bate-Caixa, Faro-Certo e Inspeção</strong>, todos tratados com <strong>o mesmo peso</strong>. Se a equipe passou na frente da casa e solicitou consumo mas não encontrou nada, o sistema entende que aquele alvo não deve ser visitado novamente por um período de 4 a 6 meses, poupando tempo e combustível. ⛽💰</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">O que é o <strong>apontamento suspeito</strong> nas regras?</p>
+<p>O <strong>apontamento suspeito</strong> nada mais é do que o apontamento realizado pelo leiturista no momento da visita na UC, nem sempre a leitura é coletada normalmente (<strong>LEITURA NORMAL</strong>). </p>
+<p>📝 <strong>Os apontamentos suspeitos são:</strong>
+'VESTIGIO DE IRREGULARIDADE',
+'VESTIGIO DE LIGACAO IRREGULAR',
+'PROB DISPLAY MEDIDOR ELETRONICO',
+'MEDIDOR COM VIDRO QUEBRADO',
+'MEDIDOR PARADO DESCONTROLADO OU EMBACADO',
+'MEDIDOR GIRANDO AO CONTRARIO',
+'MEDIDOR NAO LOCALIZADO',
+'MEDIDOR RETIRADO DA CAIXA DE MEDICAO',
+'NUMERO DO MEDIDOR NAO CONFERE',
+'MEDIDOR COM VIDRO EMBACADO (NAO PERMITE LEITURA)',
+'MEDIDOR DESENERGIZADO (NAO EXIBE LEITURA)',
+'IMPEDIMENTO DE LEITURA POR SINISTRO',
+'EQUIPAMENTO COM PERDA DE PARAMETRO',
+'ERRO DE CADASTRO',
+'TROCA DE EQUIPAMENTO POR ENCHENTE'.</p>
 </div>
 
 
